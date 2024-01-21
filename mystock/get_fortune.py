@@ -22,12 +22,15 @@ DATA_PATH = os.getenv('DATA_PATH')
 
 
 class Backtesting:
-    def __init__(self, data_dir, dt_format, start_date, end_date):
+    def __init__(self, data_dir, dt_format, start_date, end_date, sample_start, sample_end):
         self.strategy = None
         self.data_dir = data_dir
         self.dt_format = dt_format
         self.start_date = start_date
         self.end_date = end_date
+        self.sample_start = sample_start
+        self.sample_end = sample_end
+        self.window_size = 10
 
     def run(self):
         # Read data from the specified directory and extract data from the specified date
@@ -50,6 +53,7 @@ class Backtesting:
         列定义为id,date,open,high,low,close,volume
         """
         df = pd.read_csv(self.data_dir)
+        df = df[(df['volume'] != 0) & (df['close'] != 0) & (df['open'] != 0)]
         # 统一日期格式
         # print(self.dt_format)
         # df['date'] = pd.to_datetime(df['date'], format=self.dt_format)
@@ -70,7 +74,7 @@ class Backtesting:
             if self.df.iloc[i]['signals'] == 1 and position == 0:
                 position = 1
                 buy_price = self.df.iloc[i + 1]['open']
-                log(f"{self.df.iloc[i+1]['date']}, 买入价格 {buy_price}")
+                log(f"{self.df.iloc[i + 1]['date']}, 买入价格 {buy_price}")
             elif self.df.iloc[i]['signals'] == 2 and position == 1:
                 position = 0
                 sell_price = self.df.iloc[i + 1]['open']
@@ -81,6 +85,79 @@ class Backtesting:
 
     def add_strategy(self, strategy):
         self.strategy = strategy
+
+    def moving_average(self, data, window_size):
+        return np.convolve(data, np.ones(window_size), 'valid') / window_size
+
+    def generate_samples(self, buy=1):
+        features = []
+        labels = []
+        infos = []
+        date = self.df['date'].values
+        close_prices = self.df['close'].values
+        volume = self.df['volume'].values
+        feature_size = 0
+
+        # 循环遍历生成样本数据，一次循环生成一条数据，所以循环的次数是样本窗口大小。单词循环中会读取特征需要的数据大小。
+        for i in range(0, len(self.df)):
+            if date[i] < self.sample_start.strftime(self.dt_format) or date[i] > self.sample_end.strftime(
+                    self.dt_format):
+                continue
+            # print(i, date[i])
+            # 提取close价格作为特征
+            window_size = self.window_size + 60
+            feature_close = close_prices[i - window_size:i + 1]
+            feature_close_normalized = feature_close / feature_close[-1]
+
+            # 提取成交量作为特征
+            feature_volume = volume[i - window_size:i + 1]
+            feature_volume_normalized = feature_volume / feature_volume[-1]
+
+            # 计算MA5
+            feature_ma5 = self.moving_average(feature_close_normalized, 5)
+            # 计算MA10
+            feature_ma10 = self.moving_average(feature_close_normalized, 10)
+            # 计算MA20
+            feature_ma20 = self.moving_average(feature_close_normalized, 20)
+            # 计算MA30
+            feature_ma30 = self.moving_average(feature_close_normalized, 30)
+            # 计算MA30
+            feature_ma40 = self.moving_average(feature_close_normalized, 40)
+            # 计算MA30
+            feature_ma50 = self.moving_average(feature_close_normalized, 50)
+            # 计算MA30
+            feature_ma60 = self.moving_average(feature_close_normalized, 60)
+
+            # 将所有特征添加到一个列表中
+            feature_list = [feature_close_normalized[-self.window_size:], feature_volume_normalized[-self.window_size:],
+                            feature_ma5[-self.window_size:], feature_ma10[-self.window_size:],
+                            feature_ma20[-self.window_size:], feature_ma30[-self.window_size:],
+                            feature_ma40[-self.window_size:], feature_ma50[-self.window_size:],
+                            feature_ma60[-self.window_size:]]
+
+            # 使用 np.concatenate() 函数将特征列表连接起来
+            feature = np.concatenate(feature_list)
+
+            feature_size = feature.size
+            # print(df['close'].iloc[i + 1], df['open'].iloc[i + 1])
+            if i == len(self.df) - 1:
+                label = 0
+                log_info = [self.df['date'].iloc[i], 0, 0]
+            else:
+                if buy == 1:
+                    label = int(self.df['close'].iloc[i + 1] > self.df['open'].iloc[i + 1] * 1.01)
+                else:
+                    label = int(self.df['close'].iloc[i + 1] < self.df['open'].iloc[i + 1] * 0.99)
+                # label = int(df['close'].iloc[i - 1] > df['close'].iloc[i - 2])
+                # label = int(normalized_close_feature[-1] > normalized_close_feature[-2])
+
+                log_info = [self.df['date'].iloc[i], self.df['open'].iloc[i + 1], self.df['close'].iloc[i + 1]]
+
+            features.append(feature)
+            labels.append(label)
+            infos.append(log_info)
+
+        return features, labels, feature_size, infos
 
     # def _generate_signals(self):
     #     """
@@ -98,7 +175,7 @@ class Backtesting:
 if __name__ == '__main__':
     # 00700
     # 09888
-    stock_path = DATA_PATH + "09888"
+    stock_path = DATA_PATH + "/09888"
     backtest = Backtesting(
         data_dir=stock_path,
         dt_format='%Y-%m-%d',

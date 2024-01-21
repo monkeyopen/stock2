@@ -19,11 +19,15 @@
 
 # 最开始的时候可能是按股票代码拉取全部历史数据。后面每天更新的时候，只要拉取当天的全部数据，然后写入数据库就可以了。
 
-
+import os
 import akshare as ak
 import pandas as pd
 import threading
 import time
+from dotenv import load_dotenv
+
+load_dotenv()
+DATA_PATH = os.getenv('DATA_PATH')
 
 
 def get_stock_data(stock_code: str, update_interval: int = None, file_path: str = None) -> pd.DataFrame:
@@ -57,6 +61,6 @@ def read_stock_data(file_path: str):
 
 
 if __name__ == '__main__':
-    stock_code = "09888"
-    df = get_stock_data(stock_code, file_path=f"data/{stock_code}")
+    stock_code = "00700"
+    df = get_stock_data(stock_code, file_path=f"{DATA_PATH}/{stock_code}")
     print(df)
