@@ -30,7 +30,7 @@ load_dotenv()
 DATA_PATH = os.getenv('DATA_PATH')
 
 
-def get_stock_data(stock_code: str, update_interval: int = None, file_path: str = None) -> pd.DataFrame:
+def get_hk_stock_data(stock_code: str, update_interval: int = None, file_path: str = None) -> pd.DataFrame:
     """
     获取指定股票代码的历史股票数据，并将其存储在一个Pandas DataFrame中。
     如果指定了update_interval参数，则使用Python中的定时器技术定时获取最新的股票数据，并将其存储在DataFrame中。
@@ -43,10 +43,27 @@ def get_stock_data(stock_code: str, update_interval: int = None, file_path: str 
     #         df = pd.concat([df, new_data])
     #         time.sleep(update_interval)
     df = ak.stock_hk_daily(symbol=stock_code, adjust="qfq")
+
     print(df)
     # if update_interval:
     #     t = threading.Thread(target=update_data)
     #     t.start()
+    if file_path:
+        df.to_csv(file_path)
+    return df
+
+
+def get_us_stock_data(stock_code: str, update_interval: int = None, file_path: str = None) -> pd.DataFrame:
+    df = ak.stock_us_daily(symbol=stock_code, adjust="qfq")
+    print(df)
+    if file_path:
+        df.to_csv(file_path)
+    return df
+
+
+def get_a_stock_data(stock_code: str, update_interval: int = None, file_path: str = None) -> pd.DataFrame:
+    df = ak.stock_zh_a_daily(symbol=stock_code, adjust="qfq")
+    print(df)
     if file_path:
         df.to_csv(file_path)
     return df
@@ -60,7 +77,43 @@ def read_stock_data(file_path: str):
     return df
 
 
+def HKStock():
+    label_file = DATA_PATH + "hk_stock"
+    with open(label_file, 'r') as f:
+        for line in f.readlines():
+            stock_code = line.strip()
+            df = get_hk_stock_data(stock_code, file_path=f"{DATA_PATH}/{stock_code}")
+            print(df)
+
+
+def USStock():
+    label_file = DATA_PATH + "us_stock"
+    with open(label_file, 'r') as f:
+        for line in f.readlines():
+            stock_code = line.strip()
+            df = get_hk_stock_data(stock_code, file_path=f"{DATA_PATH}/{stock_code}")
+            print(df)
+
+
+def AStock():
+    label_file = DATA_PATH + "a_stock"
+    with open(label_file, 'r') as f:
+        for line in f.readlines():
+            stock_code = line.strip()
+            df = get_hk_stock_data(stock_code, file_path=f"{DATA_PATH}/{stock_code}")
+            print(df)
+
+
 if __name__ == '__main__':
-    stock_code = "00700"
-    df = get_stock_data(stock_code, file_path=f"{DATA_PATH}/{stock_code}")
-    print(df)
+    # HKStock()
+    # stock_code = "00700"
+    # df = get_hk_stock_data(stock_code, file_path=f"{DATA_PATH}/{stock_code}")
+    # print(df)
+    USStock()
+    # stock_code = "PYPL"
+    # df = get_us_stock_data(stock_code, file_path=f"{DATA_PATH}/{stock_code}")
+    # print(df)
+    # AStock()
+    # stock_code = "sz300045"
+    # df = get_a_stock_data(stock_code, file_path=f"{DATA_PATH}/{stock_code}")
+    # print(df)

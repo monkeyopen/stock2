@@ -100,12 +100,14 @@ class Backtesting:
 
         # 循环遍历生成样本数据，一次循环生成一条数据，所以循环的次数是样本窗口大小。单词循环中会读取特征需要的数据大小。
         for i in range(0, len(self.df)):
-            if date[i] < self.sample_start.strftime(self.dt_format) or date[i] > self.sample_end.strftime(
+            window_size = self.window_size + 60
+            if i < window_size or date[i] < self.sample_start.strftime(self.dt_format) or date[
+                i] > self.sample_end.strftime(
                     self.dt_format):
                 continue
             # print(i, date[i])
             # 提取close价格作为特征
-            window_size = self.window_size + 60
+
             feature_close = close_prices[i - window_size:i + 1]
             feature_close_normalized = feature_close / feature_close[-1]
 
@@ -138,7 +140,6 @@ class Backtesting:
             # 使用 np.concatenate() 函数将特征列表连接起来
             feature = np.concatenate(feature_list)
 
-            feature_size = feature.size
             # print(df['close'].iloc[i + 1], df['open'].iloc[i + 1])
             if i == len(self.df) - 1:
                 label = 0
@@ -157,7 +158,7 @@ class Backtesting:
             labels.append(label)
             infos.append(log_info)
 
-        return features, labels, feature_size, infos
+        return features, labels, infos
 
     # def _generate_signals(self):
     #     """

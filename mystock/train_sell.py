@@ -15,19 +15,30 @@ load_dotenv()
 DATA_PATH = os.getenv('DATA_PATH')
 
 if __name__ == '__main__':
-    stock_path = DATA_PATH + "/00700"
-    backtest = Backtesting(
-        data_dir=stock_path,
-        dt_format='%Y-%m-%d',
-        start_date=datetime.datetime(2022, 1, 1),
-        end_date=datetime.datetime(2023, 12, 31),
-        sample_start=datetime.datetime(2023, 1, 1),
-        sample_end=datetime.datetime(2023, 12, 31)
-    )
-    backtest._read_data()
-
-    features, labels, feature_size, infos = backtest.generate_samples(buy=0)
-
+    features_list = []
+    labels_list = []
+    infos_list = []
+    label_file = DATA_PATH + "stock"
+    with open(label_file, 'r') as f:
+        for line in f.readlines():
+            stock = line.strip()
+            if len(stock) < 1:
+                continue
+            stock_path = DATA_PATH + stock
+            backtest = Backtesting(
+                data_dir=stock_path,
+                dt_format='%Y-%m-%d',
+                start_date=datetime.datetime(2000, 1, 1),
+                end_date=datetime.datetime(2024, 1, 31),
+                sample_start=datetime.datetime(2010, 1, 1),
+                sample_end=datetime.datetime(2023, 10, 1)
+            )
+            backtest._read_data()
+            feature, label, info = backtest.generate_samples(buy=1)
+            features_list.append(feature)
+            labels_list.append(label)
+            infos_list.append(info)
+    labels = np.concatenate(labels_list)
     label_counter = Counter(labels)
     print("Label distribution:")
     print(f"Positive samples (1): {label_counter[1]}")
@@ -39,7 +50,7 @@ if __name__ == '__main__':
 
     # 假设你已经有了features和labels
     # 将features和labels转换为numpy数组
-    features_np = np.array(features)
+    features_np = np.array(features_list)
     labels_np = np.array(labels)
 
     # 将numpy数组转换为PyTorch张量
@@ -52,7 +63,7 @@ if __name__ == '__main__':
     data_loader = DataLoader(dataset, batch_size=batch_size, shuffle=True)
 
     # 定义神经网络、损失函数和优化器
-    input_size = feature_size
+    input_size = len(features_tensor[0])
     hidden_size = 128
     output_size = 1
     model = FiveLayerNN(input_size, hidden_size, output_size)
