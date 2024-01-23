@@ -83,10 +83,13 @@ def HKStock():
     with open(label_file, 'r') as f:
         for line in f.readlines():
             stock_code = line.strip()
-            if len(stock_code < 1):
+            if len(stock_code) < 1:
                 continue
             df = get_hk_stock_data(stock_code, file_path=f"{DATA_PATH}/{stock_code}")
             print(df)
+
+            random_number = random.randint(1, 10)
+            time.sleep(random_number)
 
 
 def USStock():
