@@ -25,6 +25,7 @@ import pandas as pd
 import threading
 import time
 from dotenv import load_dotenv
+import random
 
 load_dotenv()
 DATA_PATH = os.getenv('DATA_PATH')
@@ -82,6 +83,8 @@ def HKStock():
     with open(label_file, 'r') as f:
         for line in f.readlines():
             stock_code = line.strip()
+            if len(stock_code < 1):
+                continue
             df = get_hk_stock_data(stock_code, file_path=f"{DATA_PATH}/{stock_code}")
             print(df)
 
@@ -91,8 +94,14 @@ def USStock():
     with open(label_file, 'r') as f:
         for line in f.readlines():
             stock_code = line.strip()
-            df = get_hk_stock_data(stock_code, file_path=f"{DATA_PATH}/{stock_code}")
+            if len(stock_code) < 1:
+                continue
+            print(stock_code)
+            df = get_us_stock_data(stock_code, file_path=f"{DATA_PATH}/{stock_code}")
             print(df)
+
+            random_number = random.randint(1, 10)
+            time.sleep(random_number)
 
 
 def AStock():
@@ -100,20 +109,42 @@ def AStock():
     with open(label_file, 'r') as f:
         for line in f.readlines():
             stock_code = line.strip()
-            df = get_hk_stock_data(stock_code, file_path=f"{DATA_PATH}/{stock_code}")
+            if len(stock_code) < 1:
+                continue
+            print(stock_code)
+            df = get_a_stock_data(stock_code, file_path=f"{DATA_PATH}/{stock_code}")
             print(df)
+
+            random_number = random.randint(1, 10)
+            time.sleep(random_number)
 
 
 if __name__ == '__main__':
-    # HKStock()
+    HKStock()
     # stock_code = "00700"
     # df = get_hk_stock_data(stock_code, file_path=f"{DATA_PATH}/{stock_code}")
+    # file_path = DATA_PATH + "all_hk_stock"
+    # data = ak.stock_hk_spot()
+    # print(data)
+    # if file_path:
+    #     data.to_csv(file_path)
     # print(df)
     USStock()
     # stock_code = "PYPL"
+    # name = ak.get_us_stock_name()
+    # file_path = DATA_PATH + "all_us_stock"
+    # data = ak.stock_us_spot()
+    # print(data)
+    # if file_path:
+    #     data.to_csv(file_path)
     # df = get_us_stock_data(stock_code, file_path=f"{DATA_PATH}/{stock_code}")
     # print(df)
-    # AStock()
+    AStock()
     # stock_code = "sz300045"
     # df = get_a_stock_data(stock_code, file_path=f"{DATA_PATH}/{stock_code}")
     # print(df)
+    # file_path = DATA_PATH + "all_a_stock"
+    # data = ak.stock_zh_a_spot()
+    # print(data)
+    # if file_path:
+    #     data.to_csv(file_path)

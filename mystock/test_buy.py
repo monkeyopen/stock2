@@ -15,24 +15,28 @@ load_dotenv()
 DATA_PATH = os.getenv('DATA_PATH')
 
 if __name__ == '__main__':
-    label_file = DATA_PATH + "hk_stock"
+    label_file = DATA_PATH + "us_stock"
     with open(label_file, 'r') as f:
         for line in f.readlines():
             stock = line.strip()
             print(stock)
             if len(stock) < 1:
                 continue
+            # if stock != "PYPL":
+            #     continue
             stock_path = DATA_PATH + stock
             backtest = Backtesting(
                 data_dir=stock_path,
                 dt_format='%Y-%m-%d',
                 start_date=datetime.datetime(2023, 1, 1),
                 end_date=datetime.datetime(2024, 1, 31),
-                sample_start=datetime.datetime(2023, 12, 1),
+                sample_start=datetime.datetime(2023, 12, 2),
                 sample_end=datetime.datetime(2024, 1, 31)
             )
             backtest._read_data()
             features, labels, infos = backtest.generate_samples(buy=1)
+            if len(features) < 1:
+                continue
 
             label_counter = Counter(labels)
             print("Label distribution:")
