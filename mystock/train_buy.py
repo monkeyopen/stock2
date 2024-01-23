@@ -1,7 +1,14 @@
-import pandas as pd
-
 from dotenv import load_dotenv
 import os
+
+load_dotenv()
+DATA_PATH = os.getenv('DATA_PATH')
+ROOT_PATH = os.getenv('ROOT_PATH')
+import sys;
+
+print('Python %s on %s' % (sys.version, sys.platform))
+sys.path.extend([ROOT_PATH])
+
 import datetime
 import numpy as np
 import torch
@@ -10,9 +17,6 @@ from torch.utils.data import DataLoader, TensorDataset
 from get_fortune import Backtesting
 from mynet.neural_network import FiveLayerNN
 from collections import Counter
-
-load_dotenv()
-DATA_PATH = os.getenv('DATA_PATH')
 
 if __name__ == '__main__':
     features_list = []
