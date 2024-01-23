@@ -23,6 +23,10 @@ if __name__ == '__main__':
     labels_list = []
     infos_list = []
     label_file = DATA_PATH + "us_stock"
+    if torch.cuda.is_available():
+        device = torch.device('cuda')
+    else:
+        device = torch.device('cpu')
     with open(label_file, 'r') as f:
         for line in f.readlines():
             stock = line.strip()
@@ -72,6 +76,7 @@ if __name__ == '__main__':
     hidden_size = 128
     output_size = 1
     model = FiveLayerNN(input_size, hidden_size, output_size)
+    model.to(device)
     # 这里可以载入旧模型，继续训练
     # model_weights_path = f"model/20240121_buy_weights.pth"
     # model.load_state_dict(torch.load(model_weights_path))
@@ -83,6 +88,7 @@ if __name__ == '__main__':
     epochs = 3000
     for epoch in range(epochs):
         for batch_features, batch_labels in data_loader:
+            batch_features, batch_labels = batch_features.to(device), batch_labels.to(device)
             # 前向传播
             output = model(batch_features).squeeze()
 
