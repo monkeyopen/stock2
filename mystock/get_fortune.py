@@ -87,7 +87,19 @@ class Backtesting:
         self.strategy = strategy
 
     def moving_average(self, data, window_size):
-        return np.convolve(data, np.ones(window_size), 'valid') / window_size
+        res = np.convolve(data, np.ones(window_size), 'valid') / window_size
+        res = np.round(res, 3)
+        return res
+
+    def EMA(self, ndarry, window=7):
+        weight = 2 / (window + 1)
+        ema_values = np.zeros((len(ndarry),))
+        # ema_values[:] = np.nan
+        start_line = 0
+        ema_values[start_line + window - 1] = ndarry[start_line:start_line + window - 1].mean()
+        for i in range(start_line + window, len(ndarry)):
+            ema_values[i] = (ndarry[i] * weight) + (ema_values[i - 1] * (1 - weight))
+        return ema_values
 
     def generate_samples(self, buy=1):
         features = []
@@ -103,18 +115,14 @@ class Backtesting:
             window_size = self.window_size + 60
             if i < window_size or date[i] < self.sample_start.strftime(self.dt_format) or date[
                 i] > self.sample_end.strftime(
-                    self.dt_format):
+                self.dt_format):
                 continue
             # print(i, date[i])
             # 提取close价格作为特征
 
             feature_close = close_prices[i - window_size:i + 1]
             feature_close_normalized = feature_close / feature_close[-1]
-
-            # 提取成交量作为特征
-            feature_volume = volume[i - window_size:i + 1]
-            feature_volume_normalized = feature_volume / feature_volume[-1]
-
+            # feature_close_normalized = np.round(feature_close_normalized, 3)
             # 计算MA5
             feature_ma5 = self.moving_average(feature_close_normalized, 5)
             # 计算MA10
@@ -123,22 +131,38 @@ class Backtesting:
             feature_ma20 = self.moving_average(feature_close_normalized, 20)
             # 计算MA30
             feature_ma30 = self.moving_average(feature_close_normalized, 30)
-            # 计算MA30
-            feature_ma40 = self.moving_average(feature_close_normalized, 40)
-            # 计算MA30
-            feature_ma50 = self.moving_average(feature_close_normalized, 50)
-            # 计算MA30
+            # 计算MA60
             feature_ma60 = self.moving_average(feature_close_normalized, 60)
+            # MA5>MA10
+            feature_ma5_ma10 = np.array([(feature_ma5[-1] - feature_ma10[-1]) > 0])
+            # MA5>MA60
+            feature_ma5_ma60 = np.array([(feature_ma5[-1] - feature_ma60[-1]) > 0])
 
+            # 提取成交量作为特征
+            feature_volume = volume[i - window_size:i + 1]
+            feature_volume_normalized = feature_volume / feature_volume[-1]
+            # 计算MA5
+            feature_volume_ma5 = self.moving_average(feature_volume_normalized, 5)
+            # 计算MA10
+            feature_volume_ma10 = self.moving_average(feature_volume_normalized, 10)
+
+            # MACD
+            ema12 = self.EMA(feature_close_normalized, window=12)
+            ema26 = self.EMA(feature_close_normalized, window=26)
+            dif = ema12 - ema26
+            dea = self.EMA(dif, window=9)
+            macd = np.array([dif[-2] <= dea[-2] and dif[-1] > dea[-1]])
             # 将所有特征添加到一个列表中
-            feature_list = [feature_close_normalized[-self.window_size:], feature_volume_normalized[-self.window_size:],
+            feature_list = [feature_close_normalized[-self.window_size:],
                             feature_ma5[-self.window_size:], feature_ma10[-self.window_size:],
                             feature_ma20[-self.window_size:], feature_ma30[-self.window_size:],
-                            feature_ma40[-self.window_size:], feature_ma50[-self.window_size:],
-                            feature_ma60[-self.window_size:]]
-
+                            feature_ma60[-self.window_size:],
+                            feature_volume_normalized[-self.window_size:], feature_volume_ma5[-self.window_size:],
+                            feature_volume_ma10[-self.window_size:]]
+            rounded_feature_list = [np.round(feature, decimals=3) for feature in feature_list]
+            total_feature = rounded_feature_list + [feature_ma5_ma10, feature_ma5_ma60, macd]
             # 使用 np.concatenate() 函数将特征列表连接起来
-            feature = np.concatenate(feature_list)
+            feature = np.concatenate(total_feature)
 
             # print(df['close'].iloc[i + 1], df['open'].iloc[i + 1])
             if i == len(self.df) - 1:
@@ -146,7 +170,10 @@ class Backtesting:
                 log_info = [self.df['date'].iloc[i], 0, 0]
             else:
                 if buy == 1:
-                    label = int(self.df['close'].iloc[i + 1] > self.df['open'].iloc[i + 1] * 1.01)
+                    # 1日内1个点涨幅
+                    # label = int(self.df['close'].iloc[i + 1] > self.df['open'].iloc[i + 1] * 1.01)
+                    # 5日内5个点涨幅
+                    label = int(max(self.df['high'].iloc[i + 1:i + 5]) > self.df['open'].iloc[i + 1] * 1.05)
                 else:
                     label = int(self.df['close'].iloc[i + 1] < self.df['open'].iloc[i + 1] * 0.99)
                 # label = int(df['close'].iloc[i - 1] > df['close'].iloc[i - 2])

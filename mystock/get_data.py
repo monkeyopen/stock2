@@ -29,6 +29,7 @@ import random
 
 load_dotenv()
 DATA_PATH = os.getenv('DATA_PATH')
+CONF_PATH = os.getenv('CONF_PATH')
 
 
 def get_hk_stock_data(stock_code: str, update_interval: int = None, file_path: str = None) -> pd.DataFrame:
@@ -79,7 +80,7 @@ def read_stock_data(file_path: str):
 
 
 def HKStock():
-    label_file = DATA_PATH + "hk_stock"
+    label_file = CONF_PATH + "hk_stock"
     with open(label_file, 'r') as f:
         for line in f.readlines():
             stock_code = line.strip()
@@ -93,7 +94,7 @@ def HKStock():
 
 
 def USStock():
-    label_file = DATA_PATH + "us_stock"
+    label_file = CONF_PATH + "us_stock"
     with open(label_file, 'r') as f:
         for line in f.readlines():
             stock_code = line.strip()
@@ -108,7 +109,7 @@ def USStock():
 
 
 def AStock():
-    label_file = DATA_PATH + "a_stock"
+    label_file = CONF_PATH + "a_stock"
     with open(label_file, 'r') as f:
         for line in f.readlines():
             stock_code = line.strip()
@@ -123,7 +124,7 @@ def AStock():
 
 
 if __name__ == '__main__':
-    # HKStock()
+    HKStock()
     # stock_code = "00700"
     # df = get_hk_stock_data(stock_code, file_path=f"{DATA_PATH}/{stock_code}")
     # file_path = DATA_PATH + "all_hk_stock"
@@ -132,16 +133,16 @@ if __name__ == '__main__':
     # if file_path:
     #     data.to_csv(file_path)
     # print(df)
-    # USStock()
-    stock_code = "CVS"
+    USStock()
+    # stock_code = "CVS"
     # file_path = DATA_PATH + "all_us_stock"
     # data = ak.stock_us_spot()
     # print(data)
     # if file_path:
     #     data.to_csv(file_path)
-    df = get_us_stock_data(stock_code, file_path=f"{DATA_PATH}/{stock_code}")
-    print(df)
-    # AStock()
+    # df = get_us_stock_data(stock_code, file_path=f"{DATA_PATH}/{stock_code}")
+    # print(df)
+    AStock()
     # stock_code = "sz300045"
     # df = get_a_stock_data(stock_code, file_path=f"{DATA_PATH}/{stock_code}")
     # print(df)

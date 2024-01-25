@@ -13,9 +13,12 @@ from collections import Counter
 
 load_dotenv()
 DATA_PATH = os.getenv('DATA_PATH')
+CONF_PATH = os.getenv('CONF_PATH')
 
 if __name__ == '__main__':
-    label_file = DATA_PATH + "us_stock"
+    label_file = CONF_PATH + "us_stock_test2"
+    model_weights_path = f"model/buy_weights_pos3_20240124_last.pth"
+    print(model_weights_path)
     with open(label_file, 'r') as f:
         for line in f.readlines():
             stock = line.strip()
@@ -30,7 +33,7 @@ if __name__ == '__main__':
                 dt_format='%Y-%m-%d',
                 start_date=datetime.datetime(2023, 1, 1),
                 end_date=datetime.datetime(2024, 1, 31),
-                sample_start=datetime.datetime(2023, 12, 2),
+                sample_start=datetime.datetime(2023, 12, 1),
                 sample_end=datetime.datetime(2024, 1, 31)
             )
             backtest._read_data()
@@ -63,7 +66,6 @@ if __name__ == '__main__':
             # 创建一个新的模型实例
             model = FiveLayerNN(input_size, hidden_size, output_size)
             # 加载模型状态
-            model_weights_path = f"model/20240121_buy_weights.pth"
             model.load_state_dict(torch.load(model_weights_path))
             # 确保模型在评估模式，这会关闭诸如 dropout 等训练特定的层
             model.eval()
@@ -101,3 +103,10 @@ if __name__ == '__main__':
                 print(f"Accuracy for predictions = 1: {positive_accuracy * 100:.2f}%")
             else:
                 print("No positive predictions.")
+
+            # 筛选出label为 1 的数据
+            positive_predictions = predictions[labels_tensor == 1]
+            positive_labels = labels_tensor[labels_tensor == 1]
+
+            positive_recall = (positive_predictions == positive_labels).float().mean().item()
+            print(f"Recall for predictions = 1: {positive_recall * 100:.2f}%")
