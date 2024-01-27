@@ -124,7 +124,9 @@ def AStock():
 
 
 if __name__ == '__main__':
-    HKStock()
+    # HKStock()
+    # AStock()
+    USStock()
     # stock_code = "00700"
     # df = get_hk_stock_data(stock_code, file_path=f"{DATA_PATH}/{stock_code}")
     # file_path = DATA_PATH + "all_hk_stock"
@@ -133,7 +135,6 @@ if __name__ == '__main__':
     # if file_path:
     #     data.to_csv(file_path)
     # print(df)
-    USStock()
     # stock_code = "CVS"
     # file_path = DATA_PATH + "all_us_stock"
     # data = ak.stock_us_spot()
@@ -142,7 +143,7 @@ if __name__ == '__main__':
     #     data.to_csv(file_path)
     # df = get_us_stock_data(stock_code, file_path=f"{DATA_PATH}/{stock_code}")
     # print(df)
-    AStock()
+
     # stock_code = "sz300045"
     # df = get_a_stock_data(stock_code, file_path=f"{DATA_PATH}/{stock_code}")
     # print(df)

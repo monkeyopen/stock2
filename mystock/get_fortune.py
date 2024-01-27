@@ -101,10 +101,11 @@ class Backtesting:
             ema_values[i] = (ndarry[i] * weight) + (ema_values[i - 1] * (1 - weight))
         return ema_values
 
-    def generate_samples(self, buy=1):
+    def generate_samples(self, label_type="buy"):
         features = []
         labels = []
         infos = []
+        pres = []
         date = self.df['date'].values
         close_prices = self.df['close'].values
         volume = self.df['volume'].values
@@ -117,9 +118,17 @@ class Backtesting:
                 i] > self.sample_end.strftime(
                 self.dt_format):
                 continue
+
             # print(i, date[i])
             # 提取close价格作为特征
+            # 定义一个将字符串日期转换为整数的函数
+            def date_string_to_int(date_string):
+                return int(date_string.replace("-", ""))
 
+            # 使用NumPy的vectorize函数将函数应用于整个数组
+            # date_string_to_int_vectorized = np.vectorize(date_string_to_int)
+            # date_ints = date_string_to_int_vectorized(date[i - window_size:i + 1])
+            # feature_date = date_ints % 100000
             feature_close = close_prices[i - window_size:i + 1]
             feature_close_normalized = feature_close / feature_close[-1]
             # feature_close_normalized = np.round(feature_close_normalized, 3)
@@ -133,6 +142,8 @@ class Backtesting:
             feature_ma30 = self.moving_average(feature_close_normalized, 30)
             # 计算MA60
             feature_ma60 = self.moving_average(feature_close_normalized, 60)
+            # MA5>MA5
+            feature_ma5_ma5 = np.array([(feature_ma5[-1] - feature_ma10[-2]) > 0])
             # MA5>MA10
             feature_ma5_ma10 = np.array([(feature_ma5[-1] - feature_ma10[-1]) > 0])
             # MA5>MA60
@@ -147,20 +158,25 @@ class Backtesting:
             feature_volume_ma10 = self.moving_average(feature_volume_normalized, 10)
 
             # MACD
+            ema5 = self.EMA(feature_close_normalized, window=5)
             ema12 = self.EMA(feature_close_normalized, window=12)
             ema26 = self.EMA(feature_close_normalized, window=26)
             dif = ema12 - ema26
             dea = self.EMA(dif, window=9)
             macd = np.array([dif[-2] <= dea[-2] and dif[-1] > dea[-1]])
+            macd2 = np.array([dif[-2] >= dea[-2] and dif[-1] < dea[-1]])
             # 将所有特征添加到一个列表中
-            feature_list = [feature_close_normalized[-self.window_size:],
-                            feature_ma5[-self.window_size:], feature_ma10[-self.window_size:],
-                            feature_ma20[-self.window_size:], feature_ma30[-self.window_size:],
-                            feature_ma60[-self.window_size:],
-                            feature_volume_normalized[-self.window_size:], feature_volume_ma5[-self.window_size:],
-                            feature_volume_ma10[-self.window_size:]]
+            feature_list = [
+                # feature_date[-self.window_size:],
+                feature_close_normalized[-self.window_size:],
+                feature_ma5[-self.window_size:], feature_ma10[-self.window_size:],
+                feature_ma20[-self.window_size:], feature_ma30[-self.window_size:],
+                feature_ma60[-self.window_size:],
+                feature_volume_normalized[-self.window_size:], feature_volume_ma5[-self.window_size:],
+                feature_volume_ma10[-self.window_size:],
+                ema5[-self.window_size:]]
             rounded_feature_list = [np.round(feature, decimals=3) for feature in feature_list]
-            total_feature = rounded_feature_list + [feature_ma5_ma10, feature_ma5_ma60, macd]
+            total_feature = rounded_feature_list + [feature_ma5_ma5, feature_ma5_ma10, feature_ma5_ma60, macd, macd2]
             # 使用 np.concatenate() 函数将特征列表连接起来
             feature = np.concatenate(total_feature)
 
@@ -168,14 +184,32 @@ class Backtesting:
             if i == len(self.df) - 1:
                 label = 0
                 log_info = [self.df['date'].iloc[i], 0, 0]
+                pre = 0
             else:
-                if buy == 1:
+                if label_type == "buy1":
                     # 1日内1个点涨幅
-                    # label = int(self.df['close'].iloc[i + 1] > self.df['open'].iloc[i + 1] * 1.01)
+                    label = int(self.df['close'].iloc[i + 1] > self.df['open'].iloc[i + 1] * 1.01)
+                    # pre = int(feature_ma5_ma5 and feature_volume_normalized[-1] > feature_volume_normalized[-2] * 1.1)
+                    pre = int(np.array([dif[-2] <= dea[-2] and dif[-1] > dea[-1]]))
+                elif label_type == "buy5":
                     # 5日内5个点涨幅
-                    label = int(max(self.df['high'].iloc[i + 1:i + 5]) > self.df['open'].iloc[i + 1] * 1.05)
-                else:
+                    label = int(max(self.df['high'].iloc[i + 1:i + 5]) > self.df['close'].iloc[i] * 1.05)
+                    # pre = int(feature_ma5_ma5 and feature_volume_normalized[-1] > feature_volume_normalized[-2] * 1.1)
+                    pre = int(np.array([dif[-2] <= dea[-2] and dif[-1] > dea[-1]]))
+                elif label_type == "sell1":
                     label = int(self.df['close'].iloc[i + 1] < self.df['open'].iloc[i + 1] * 0.99)
+                    # pre = int(
+                    #     not feature_ma5_ma5 and feature_volume_normalized[-1] > feature_volume_normalized[-2] * 1.1)
+                    pre = int(np.array([dif[-2] >= dea[-2] and dif[-1] < dea[-1]]))
+                elif label_type == "sell5":
+                    label = int(min(self.df['low'].iloc[i + 1:i + 5]) < self.df['close'].iloc[i] * 0.95)
+                    # pre = int(
+                    #     not feature_ma5_ma5 and feature_volume_normalized[-1] > feature_volume_normalized[-2] * 1.1)
+                    pre = int(np.array([dif[-2] >= dea[-2] and dif[-1] < dea[-1]]))
+                else:
+                    label = 1
+                    pre = 1
+
                 # label = int(df['close'].iloc[i - 1] > df['close'].iloc[i - 2])
                 # label = int(normalized_close_feature[-1] > normalized_close_feature[-2])
 
@@ -184,8 +218,9 @@ class Backtesting:
             features.append(feature)
             labels.append(label)
             infos.append(log_info)
+            pres.append(pre)
 
-        return features, labels, infos
+        return features, labels, infos, pres
 
     # def _generate_signals(self):
     #     """

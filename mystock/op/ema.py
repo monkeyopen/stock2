@@ -1,6 +1,7 @@
 import numpy as np
 import pandas as pd
 
+
 def EMA(df, window=7):
     weight = 2 / (window + 1)
     ema_values = np.empty((len(df),))
