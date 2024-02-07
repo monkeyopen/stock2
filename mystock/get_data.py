@@ -46,7 +46,7 @@ def get_hk_stock_data(stock_code: str, update_interval: int = None, file_path: s
     #         time.sleep(update_interval)
     df = ak.stock_hk_daily(symbol=stock_code, adjust="qfq")
 
-    print(df)
+    # print(df)
     # if update_interval:
     #     t = threading.Thread(target=update_data)
     #     t.start()
@@ -57,7 +57,7 @@ def get_hk_stock_data(stock_code: str, update_interval: int = None, file_path: s
 
 def get_us_stock_data(stock_code: str, update_interval: int = None, file_path: str = None) -> pd.DataFrame:
     df = ak.stock_us_daily(symbol=stock_code, adjust="qfq")
-    print(df)
+    # print(df)
     if file_path:
         df.to_csv(file_path)
     return df
@@ -65,7 +65,7 @@ def get_us_stock_data(stock_code: str, update_interval: int = None, file_path: s
 
 def get_a_stock_data(stock_code: str, update_interval: int = None, file_path: str = None) -> pd.DataFrame:
     df = ak.stock_zh_a_daily(symbol=stock_code, adjust="qfq")
-    print(df)
+    # print(df)
     if file_path:
         df.to_csv(file_path)
     return df
@@ -86,10 +86,11 @@ def HKStock():
             stock_code = line.strip()
             if len(stock_code) < 1:
                 continue
+            print(stock_code)
             df = get_hk_stock_data(stock_code, file_path=f"{DATA_PATH}/{stock_code}")
-            print(df)
+            # print(df)
 
-            random_number = random.randint(1, 10)
+            random_number = random.randint(1, 5)
             time.sleep(random_number)
 
 
@@ -102,14 +103,14 @@ def USStock():
                 continue
             print(stock_code)
             df = get_us_stock_data(stock_code, file_path=f"{DATA_PATH}/{stock_code}")
-            print(df)
+            # print(df)
 
-            random_number = random.randint(1, 10)
+            random_number = random.randint(1, 5)
             time.sleep(random_number)
 
 
 def AStock():
-    label_file = CONF_PATH + "a_stock"
+    label_file = CONF_PATH + "a_stock_get"
     with open(label_file, 'r') as f:
         for line in f.readlines():
             stock_code = line.strip()
@@ -117,26 +118,27 @@ def AStock():
                 continue
             print(stock_code)
             df = get_a_stock_data(stock_code, file_path=f"{DATA_PATH}/{stock_code}")
-            print(df)
+            # print(df)
 
-            random_number = random.randint(1, 10)
+            random_number = random.randint(1, 5)
             time.sleep(random_number)
 
 
 if __name__ == '__main__':
     # HKStock()
-    # AStock()
+    AStock()
     USStock()
+
     # stock_code = "00700"
     # df = get_hk_stock_data(stock_code, file_path=f"{DATA_PATH}/{stock_code}")
-    # file_path = DATA_PATH + "all_hk_stock"
+    # file_path = CONF_PATH + "all_hk_stock"
     # data = ak.stock_hk_spot()
     # print(data)
     # if file_path:
     #     data.to_csv(file_path)
     # print(df)
     # stock_code = "CVS"
-    # file_path = DATA_PATH + "all_us_stock"
+    # file_path = CONF_PATH + "all_us_stock"
     # data = ak.stock_us_spot()
     # print(data)
     # if file_path:
@@ -147,8 +149,10 @@ if __name__ == '__main__':
     # stock_code = "sz300045"
     # df = get_a_stock_data(stock_code, file_path=f"{DATA_PATH}/{stock_code}")
     # print(df)
-    # file_path = DATA_PATH + "all_a_stock"
+    # file_path = CONF_PATH + "all_a_stock"
     # data = ak.stock_zh_a_spot()
     # print(data)
     # if file_path:
     #     data.to_csv(file_path)
+
+    print("done")

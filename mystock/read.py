@@ -4,6 +4,7 @@ from dotenv import load_dotenv
 
 load_dotenv()
 DATA_PATH = os.getenv('DATA_PATH')
+CONF_PATH = os.getenv('CONF_PATH')
 
 
 class Stock:
@@ -18,15 +19,15 @@ class Stock:
 
 
 def read_us_data():
-    label_file = DATA_PATH + "all_us_stock"
+    label_file = CONF_PATH + "all_us_stock"
     num = 0
     allStock = []
-
+    print(label_file)
     with open(label_file, 'r', encoding='utf-8') as csvfile:
         reader = csv.reader(csvfile)
         next(reader)  # 跳过第一行
         for arr in reader:
-            # print(arr)
+            print(arr)
             name = arr[4]
             price = arr[5]
             volume = arr[13]
@@ -36,12 +37,21 @@ def read_us_data():
             allStock.append(stock)
 
     sorted_allStock = sorted(allStock, key=lambda stock: stock.money, reverse=True)
-    for stock in sorted_allStock[:200]:
-        print(stock)
+    selected_stocks = [stock for stock in sorted_allStock if stock.money > 1e8]
+    selected_stocks = sorted(selected_stocks, key=lambda stock: stock.name)
+    for stock in selected_stocks:
+        print(stock.name)
+    # 创建一个新的文件
+    file_name = CONF_PATH + "us_stock"
+    with open(file_name, 'w') as f:
+        # 遍历筛选后的股票
+        for stock in selected_stocks:
+            # 将股票名称写入文件
+            f.write(stock.name + '\n')
 
 
 def read_hk_data():
-    label_file = DATA_PATH + "all_hk_stock"
+    label_file = CONF_PATH + "all_hk_stock"
     num = 0
     allStock = []
 
@@ -59,12 +69,21 @@ def read_hk_data():
             allStock.append(stock)
 
     sorted_allStock = sorted(allStock, key=lambda stock: stock.money, reverse=True)
-    for stock in sorted_allStock[:100]:
-        print(stock)
+    selected_stocks = [stock for stock in sorted_allStock if stock.money > 1e8]
+    selected_stocks = sorted(selected_stocks, key=lambda stock: stock.name)
+    for stock in selected_stocks:
+        print(stock.name)
+    # 创建一个新的文件
+    file_name = CONF_PATH + "hk_stock"
+    with open(file_name, 'w') as f:
+        # 遍历筛选后的股票
+        for stock in selected_stocks:
+            # 将股票名称写入文件
+            f.write(stock.name + '\n')
 
 
 def read_a_data():
-    label_file = DATA_PATH + "all_a_stock"
+    label_file = CONF_PATH + "all_a_stock"
     num = 0
     allStock = []
 
@@ -83,8 +102,17 @@ def read_a_data():
             allStock.append(stock)
 
     sorted_allStock = sorted(allStock, key=lambda stock: stock.money, reverse=True)
-    for stock in sorted_allStock[:100]:
-        print(stock)
+    selected_stocks = [stock for stock in sorted_allStock if stock.money > 5 * 1e8]
+    selected_stocks = sorted(selected_stocks, key=lambda stock: stock.name)
+    for stock in selected_stocks:
+        print(stock.name)
+    # 创建一个新的文件
+    file_name = CONF_PATH + "a_stock"
+    with open(file_name, 'w') as f:
+        # 遍历筛选后的股票
+        for stock in selected_stocks:
+            # 将股票名称写入文件
+            f.write(stock.name + '\n')
 
 
 if __name__ == '__main__':

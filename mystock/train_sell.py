@@ -3,6 +3,7 @@ import os
 
 from mystock.op.metric import testSample
 from mystock.op.sampler import CustomSampler
+from mystock.test_sell import test_sell
 
 load_dotenv()
 CONF_PATH = os.getenv('CONF_PATH')
@@ -17,7 +18,7 @@ import datetime
 import numpy as np
 import torch
 import torch.nn as nn
-from torch.utils.data import DataLoader, TensorDataset, Sampler, RandomSampler
+from torch.utils.data import DataLoader, TensorDataset
 from get_fortune import Backtesting
 from mynet.neural_network import FiveLayerNN
 from collections import Counter
@@ -27,8 +28,12 @@ if __name__ == '__main__':
     labels_list = []
     infos_list = []
     pre_list = []
-    label_file = CONF_PATH + "us_stock_test"
-    model_name = "model/sell_weights_test_20230101_20231231"
+    datafile = "hk_stock"
+    label_file = CONF_PATH + datafile
+    label_type = "buy5"
+    start_date = "20210101"
+    end_date = "20231231"
+    model_name = f"model/{datafile}_{label_type}_step100_05_{start_date}_{end_date}"
     # if torch.cuda.is_available():
     #     device = torch.device('cuda')
     # else:
@@ -42,13 +47,13 @@ if __name__ == '__main__':
             backtest = Backtesting(
                 data_dir=stock_path,
                 dt_format='%Y-%m-%d',
-                start_date=datetime.datetime(2000, 1, 1),
-                end_date=datetime.datetime(2024, 1, 31),
-                sample_start=datetime.datetime(2023, 1, 1),
-                sample_end=datetime.datetime(2023, 12, 31)
+                start_date=datetime.datetime(2010, 1, 1),
+                end_date=datetime.datetime(2024, 12, 31),
+                sample_start=datetime.datetime.strptime(start_date, "%Y%m%d"),
+                sample_end=datetime.datetime.strptime(end_date, "%Y%m%d")
             )
             backtest._read_data()
-            feature, label, info, pre = backtest.generate_samples(label_type="sell5")
+            feature, label, info, pre = backtest.generate_samples(label_type=label_type)
             if len(feature) > 0:
                 features_list.append(feature)
                 labels_list.append(label)
@@ -89,23 +94,43 @@ if __name__ == '__main__':
     hidden_size = 128
     output_size = 1
     model = FiveLayerNN(input_size, hidden_size, output_size)
+
+
     # model.to(device)
     # 这里可以载入旧模型，继续训练
     # model_weights_path = f"{model_name}_1000.pth"
     # model.load_state_dict(torch.load(model_weights_path))
     # 调整正样本权重
     # pos_weight = torch.tensor([1.0])
-    loss_function = nn.BCEWithLogitsLoss()
+    # loss_function = nn.BCEWithLogitsLoss()
+
+    # 实现Log-Cosh损失
+    def log_cosh_loss(input, target):
+        loss = torch.log(torch.cosh(input - target))
+        return loss.mean()
+
+
+    loss_function = nn.functional.mse_loss()
+    # loss_function = nn.functional.l1_loss()
+    # loss_function = nn.functional.smooth_l1_loss()
+    # loss_function = nn.functional.huber_loss()
+    # loss_function = log_cosh_loss()
+
     optimizer = torch.optim.Adam(model.parameters(), lr=0.001)
-    # scheduler = torch.optim.lr_scheduler.StepLR(optimizer, step_size=2000, gamma=0.1)
+    scheduler = torch.optim.lr_scheduler.StepLR(optimizer, step_size=100, gamma=0.5)
 
     # 训练循环
-    epochs = 3000
+    epochs = 600
+    num = 0
     for epoch in range(epochs):
         for batch_features, batch_labels in data_loader:
+            num += 1
             # batch_features, batch_labels = batch_features.to(device), batch_labels.to(device)
             # 前向传播
             output = model(batch_features).squeeze()
+            # # 遍历并打印output和batch_labels
+            # for i, (out, feature, label) in enumerate(zip(output, batch_features, batch_labels)):
+            #     print(f"num {num}, Sample {i}: output = {out}, label = {label}, feature = {feature}")
             # 计算损失
             loss = loss_function(output, batch_labels)
             # 反向传播
@@ -113,17 +138,18 @@ if __name__ == '__main__':
             loss.backward()
             # 更新权重
             optimizer.step()
-        # # 更新学习率
-        # scheduler.step()
+        # 更新学习率
+        scheduler.step()
 
         if epoch % 10 == 1:
             # 获取当前时间
             current_time = datetime.datetime.now()
             # 打印每个epoch的损失
             print(f"{current_time}, Epoch {epoch}/{epochs}, Loss: {loss.item()}")
-        if epoch % 500 == 0:
+        if epoch % 100 == 0:
             # 训练模型后，保存权重
             model_weights_path = f"{model_name}_{epoch}.pth"
+            print(model_weights_path)
             torch.save(model.state_dict(), model_weights_path)
             testSample(model, features_tensor, labels_tensor, pres_tensor)
 
@@ -132,3 +158,6 @@ if __name__ == '__main__':
     print(model_weights_path)
     torch.save(model.state_dict(), model_weights_path)
     testSample(model, features_tensor, labels_tensor, pres_tensor)
+
+    test_sell(dataset=datafile, model_weights_path=model_weights_path,
+              flag=False, label_type=label_type)
