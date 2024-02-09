@@ -28,7 +28,7 @@ if __name__ == '__main__':
     labels_list = []
     infos_list = []
     pre_list = []
-    datafile = "us_stock2"
+    datafile = "us_stock"
     label_file = CONF_PATH + datafile
     label_type = "price"
     start_date = "20180101"

@@ -110,7 +110,7 @@ def USStock():
 
 
 def AStock():
-    label_file = CONF_PATH + "a_stock_get"
+    label_file = CONF_PATH + "a_stock"
     with open(label_file, 'r') as f:
         for line in f.readlines():
             stock_code = line.strip()
@@ -125,9 +125,9 @@ def AStock():
 
 
 if __name__ == '__main__':
-    # HKStock()
+    HKStock()
     AStock()
-    USStock()
+    # USStock()
 
     # stock_code = "00700"
     # df = get_hk_stock_data(stock_code, file_path=f"{DATA_PATH}/{stock_code}")

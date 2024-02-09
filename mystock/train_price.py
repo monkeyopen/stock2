@@ -31,7 +31,7 @@ if __name__ == '__main__':
     datafile = "us_stock"
     label_file = CONF_PATH + datafile
     label_type = "price"
-    start_date = "20180101"
+    start_date = "20150101"
     end_date = "20231231"
     # smooth_l1_loss，mse_loss，l1_loss，huber_loss，log_cosh_loss
     loss = "mse_loss"

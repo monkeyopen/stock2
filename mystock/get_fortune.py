@@ -64,6 +64,7 @@ class Backtesting:
         self.df = self.df.reset_index(drop=True)
 
     def _set_signals(self, predictions, buy_signal=1, sell_signal=1):
+        print(buy_signal, sell_signal)
         date = self.df['date'].values
         self.signals = np.zeros(len(self.df))
         idx = 0
@@ -93,27 +94,32 @@ class Backtesting:
 
         for i in range(len(self.df) - 1):
             # 止损策略
-            if stop_loss != 1 and position == 1 and self.df.iloc[i]['close'] < buy_price * stop_loss:
+            if stop_loss != 1 and position == 1 and self.df.iloc[i]['low'] < buy_price * stop_loss:
+                print(stop_loss)
                 position = 0
-                sell_price = self.df.iloc[i + 1]['open']
+                # sell_price = self.df.iloc[i + 1]['open']
+                sell_price = buy_price * stop_loss - 0.01
                 profit = sell_price / buy_price
                 self.profit *= profit
-                log(f"{self.df.iloc[i + 1]['date']}, 卖出价格 {sell_price}, 本次收益 {(profit - 1) * 100:.2f}%，总收益 {(self.profit - 1) * 100:.2f}%")
+                print(
+                    f"{self.df.iloc[i + 1]['date']}, 卖出价格 {sell_price}, 本次收益 {(profit - 1) * 100:.2f}%，总收益 {(self.profit - 1) * 100:.2f}%")
             elif self.df.iloc[i]['signals'] == 1 and position == 0:
                 position = 1
                 buy_price = self.df.iloc[i + 1]['open']
-                log(f"{self.df.iloc[i + 1]['date']}, 买入价格 {buy_price}")
+                print(f"{self.df.iloc[i + 1]['date']}, 买入价格 {buy_price}")
             elif self.df.iloc[i]['signals'] == 2 and position == 1:
                 position = 0
                 sell_price = self.df.iloc[i + 1]['open']
                 profit = sell_price / buy_price
                 self.profit *= profit
-                log(f"{self.df.iloc[i + 1]['date']}, 卖出价格 {sell_price}, 本次收益 {(profit - 1) * 100:.2f}%，总收益 {(self.profit - 1) * 100:.2f}%")
+                print(
+                    f"{self.df.iloc[i + 1]['date']}, 卖出价格 {sell_price}, 本次收益 {(profit - 1) * 100:.2f}%，总收益 {(self.profit - 1) * 100:.2f}%")
         if position == 1:
             sell_price = self.df.iloc[- 1]['close']
             profit = sell_price / buy_price
             self.profit *= profit
-            log(f"{self.df.iloc[-1]['date']}, 卖出价格 {sell_price}, 本次收益 {(profit - 1) * 100:.2f}%，总收益 {(self.profit - 1) * 100:.2f}%")
+            print(
+                f"{self.df.iloc[-1]['date']}, 卖出价格 {sell_price}, 本次收益 {(profit - 1) * 100:.2f}%，总收益 {(self.profit - 1) * 100:.2f}%")
 
     def add_strategy(self, strategy):
         self.strategy = strategy
