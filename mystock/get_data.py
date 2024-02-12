@@ -125,9 +125,9 @@ def AStock():
 
 
 if __name__ == '__main__':
-    HKStock()
-    AStock()
-    # USStock()
+    # HKStock()
+    # AStock()
+    USStock()
 
     # stock_code = "00700"
     # df = get_hk_stock_data(stock_code, file_path=f"{DATA_PATH}/{stock_code}")

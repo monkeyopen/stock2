@@ -58,7 +58,7 @@ def testSample(model, features_tensor, labels_tensor, pres_tensor):
     calRecall("模型", predictions, labels_tensor)
 
 
-def testPrice(model, features_tensor, labels_tensor):
+def testPrice(model, features_tensor, labels_tensor, buy_signal=1, sell_signal=1):
     # 计算训练集上的准确率
     with torch.no_grad():
         predictions = model(features_tensor).squeeze()
@@ -82,7 +82,7 @@ def testPrice(model, features_tensor, labels_tensor):
         total_count = 0
 
         for pred, label in zip(predictions, labels_tensor):
-            if (pred > 1 and label > 1) or (pred < 1 and label < 1):
+            if (pred > buy_signal and label > 1) or (pred < sell_signal and label < 1):
                 consistency_count += 1
             total_count += 1
 

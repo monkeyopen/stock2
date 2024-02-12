@@ -14,8 +14,9 @@ DATA_PATH = os.getenv('DATA_PATH')
 CONF_PATH = os.getenv('CONF_PATH')
 
 
-def predict_price(dataset="us_stock_test2", model_weights_path="model/sell_240_step300_20130101_20231231_last.pth",
-                  flag=False, label_type="buy1", start_date="20240101",
+def predict_price(dataset="us_stock_test2",
+                  model_weights_path="model/mse_loss_us_stock_price_step100_05_20180101_20231231_last.pth",
+                  flag=False, label_type="price", start_date="20240101",
                   end_date="20241231"):
     label_file = CONF_PATH + dataset
     print(model_weights_path)
@@ -71,19 +72,18 @@ def predict_price(dataset="us_stock_test2", model_weights_path="model/sell_240_s
             # 遍历并打印每一条数据的预测结果和标签
             for i in range(len(predictions)):
                 print(
-                    f"Data {i + 1}: Pre {predictions[i].item()}, Label {labels_tensor[i].item()}, info {info[i]}")
+                    f"stock: {stock}, Pre {predictions[i].item():.4f}, Label {labels_tensor[i].item():.4f}, info {info[i]}")
 
-            return model_weights_path, predictions, labels_tensor, info
+        return model_weights_path, predictions, labels_tensor, info
 
 
 if __name__ == '__main__':
     model_weights_path_list = [
-        "model/mse_loss_us_stock_test_price_step100_05_20210101_20231231_last.pth",
-        "model/smooth_l1_loss_us_stock_test_price_step100_05_20210101_20231231_last.pth"]
+        "model/mse_loss_us_stock_price_step100_05_20180101_20231231_last.pth"]
     result_list = []
     for model_weights_path in model_weights_path_list:
-        name, pre, label, info = predict_price(dataset="us_stock_NVDA", model_weights_path=model_weights_path,
-                                               flag=False, label_type="price", start_date="20240111",
+        name, pre, label, info = predict_price(dataset="us_stock_test3", model_weights_path=model_weights_path,
+                                               flag=False, label_type="price", start_date="20240201",
                                                end_date="20241231")
         result_list.append((name.split("_")[0], pre, label, info))
 

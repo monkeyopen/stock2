@@ -35,7 +35,9 @@ if __name__ == '__main__':
     end_date = "20231231"
     # smooth_l1_loss，mse_loss，l1_loss，huber_loss，log_cosh_loss
     loss = "mse_loss"
-    model_name = f"model/{loss}_{datafile}_{label_type}_step100_05_{start_date}_{end_date}"
+    step_size = 50
+    gamma = 0.1
+    model_name = f"model/{loss}_{datafile}_{label_type}_step{step_size}_{gamma * 10:.0f}_{start_date}_{end_date}"
     # if torch.cuda.is_available():
     #     device = torch.device('cuda')
     # else:
@@ -125,7 +127,7 @@ if __name__ == '__main__':
         loss_function = nn.functional.mse_loss
 
     optimizer = torch.optim.Adam(model.parameters(), lr=0.001)
-    scheduler = torch.optim.lr_scheduler.StepLR(optimizer, step_size=100, gamma=0.5)
+    scheduler = torch.optim.lr_scheduler.StepLR(optimizer, step_size=step_size, gamma=gamma)
 
     # 训练循环
     epochs = 600
@@ -157,7 +159,7 @@ if __name__ == '__main__':
             current_time = datetime.datetime.now()
             # 打印每个epoch的损失
             print(f"{current_time}, Epoch {epoch}/{epochs}, Loss: {loss.item()}")
-        if epoch % 100 == 0:
+        if epoch % 50 == 0:
             # 训练模型后，保存权重
             model_weights_path = f"{model_name}_{epoch}.pth"
             print(model_weights_path)
