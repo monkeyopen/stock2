@@ -80,7 +80,7 @@ def read_stock_data(file_path: str):
 
 
 def HKStock():
-    label_file = CONF_PATH + "hk_stock"
+    label_file = CONF_PATH + "hk_stock_get"
     with open(label_file, 'r') as f:
         for line in f.readlines():
             stock_code = line.strip()
@@ -90,12 +90,12 @@ def HKStock():
             df = get_hk_stock_data(stock_code, file_path=f"{DATA_PATH}/{stock_code}")
             # print(df)
 
-            random_number = random.randint(1, 5)
+            random_number = random.uniform(0, 2)
             time.sleep(random_number)
 
 
 def USStock():
-    label_file = CONF_PATH + "us_stock"
+    label_file = CONF_PATH + "us_stock_20240215"
     with open(label_file, 'r') as f:
         for line in f.readlines():
             stock_code = line.strip()
@@ -105,8 +105,11 @@ def USStock():
             df = get_us_stock_data(stock_code, file_path=f"{DATA_PATH}/{stock_code}")
             # print(df)
 
-            random_number = random.randint(1, 5)
+            random_number = random.uniform(0, 2)
             time.sleep(random_number)
+
+            # random_number = random.randint(0, 2)
+            # time.sleep(random_number)
 
 
 def AStock():
@@ -120,7 +123,7 @@ def AStock():
             df = get_a_stock_data(stock_code, file_path=f"{DATA_PATH}/{stock_code}")
             # print(df)
 
-            random_number = random.randint(1, 5)
+            random_number = random.uniform(0, 2)
             time.sleep(random_number)
 
 
@@ -129,29 +132,19 @@ if __name__ == '__main__':
     # AStock()
     USStock()
 
-    # stock_code = "00700"
-    # df = get_hk_stock_data(stock_code, file_path=f"{DATA_PATH}/{stock_code}")
     # file_path = CONF_PATH + "all_hk_stock"
     # data = ak.stock_hk_spot()
     # print(data)
     # if file_path:
     #     data.to_csv(file_path)
-    # print(df)
-    # stock_code = "CVS"
-    # file_path = CONF_PATH + "all_us_stock"
+
+    # file_path = CONF_PATH + "all_us_stock_20240216"
     # data = ak.stock_us_spot()
-    # print(data)
     # if file_path:
     #     data.to_csv(file_path)
-    # df = get_us_stock_data(stock_code, file_path=f"{DATA_PATH}/{stock_code}")
-    # print(df)
 
-    # stock_code = "sz300045"
-    # df = get_a_stock_data(stock_code, file_path=f"{DATA_PATH}/{stock_code}")
-    # print(df)
     # file_path = CONF_PATH + "all_a_stock"
     # data = ak.stock_zh_a_spot()
-    # print(data)
     # if file_path:
     #     data.to_csv(file_path)
 

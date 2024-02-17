@@ -10,12 +10,12 @@ import numpy as np
 from strategy import Strategy
 from op.ema import EMA
 
+
 class Macd(Strategy):
     def __init__(self, data):
         super().__init__(data)
         # self.dataclose = self.data.close
         # self.volume = self.data.volume
-
 
         self.data['ema12'] = EMA(self.data['close'], window=12)
         self.data['ema26'] = EMA(self.data['close'], window=26)
@@ -25,7 +25,7 @@ class Macd(Strategy):
         self.signals = np.zeros(len(self.data))
         start_line = self.data['dea'].first_valid_index()
         for i in range(start_line + 1, len(self.data)):
-            condition1 = self.data['dif'].iloc[i-1] - self.data['dea'].iloc[i-1]
+            condition1 = self.data['dif'].iloc[i - 1] - self.data['dea'].iloc[i - 1]
             condition2 = self.data['dif'].iloc[i] - self.data['dea'].iloc[i]
             if condition1 <= 0 and condition2 > 0:
                 self.signals[i] = 1
@@ -33,7 +33,6 @@ class Macd(Strategy):
                 self.signals[i] = 2
 
         self.data['signals'] = self.signals
-
 
     # def next(self):
     #     if not self.position:
@@ -53,4 +52,3 @@ class Macd(Strategy):
     #         # if condition > 0.05 or condition < -0.1:
     #             self.log('SELL CREATE, %.2f' % self.dataclose[0])
     #             self.order = self.sell()
-

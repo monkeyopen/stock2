@@ -19,7 +19,7 @@ class Stock:
 
 
 def read_us_data():
-    label_file = CONF_PATH + "all_us_stock"
+    label_file = CONF_PATH + "all_us_stock_20240215"
     num = 0
     allStock = []
     print(label_file)
@@ -37,12 +37,12 @@ def read_us_data():
             allStock.append(stock)
 
     sorted_allStock = sorted(allStock, key=lambda stock: stock.money, reverse=True)
-    selected_stocks = [stock for stock in sorted_allStock if stock.money > 1e8]
+    selected_stocks = [stock for stock in sorted_allStock if stock.money > 1e6]
     selected_stocks = sorted(selected_stocks, key=lambda stock: stock.name)
     for stock in selected_stocks:
         print(stock.name)
     # 创建一个新的文件
-    file_name = CONF_PATH + "us_stock"
+    file_name = CONF_PATH + "us_stock_20240215"
     with open(file_name, 'w') as f:
         # 遍历筛选后的股票
         for stock in selected_stocks:
@@ -116,6 +116,6 @@ def read_a_data():
 
 
 if __name__ == '__main__':
-    # read_us_data()
+    read_us_data()
     # read_hk_data()
-    read_a_data()
+    # read_a_data()

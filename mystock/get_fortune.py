@@ -15,9 +15,13 @@ import numpy as np
 
 from mystock.op.bias import calculate_bias
 from mystock.op.rsi import calculate_rsi
+from mystock.op.ma import MA, EMA
+from mystock.op.dengtong import calculate_dengtong
+from mystock.op.chaodi import calculate_chaodi
 from mystock.op.bollinger_bands import calculate_bollinger_bands
 from macd import Macd
 from mylog import log
+import timeit
 
 load_dotenv()
 DATA_PATH = os.getenv('DATA_PATH')
@@ -124,30 +128,24 @@ class Backtesting:
     def add_strategy(self, strategy):
         self.strategy = strategy
 
-    def moving_average(self, data, window_size):
-        res = np.convolve(data, np.ones(window_size), 'valid') / window_size
-        res = np.round(res, 3)
-        return res
-
-    def EMA(self, ndarry, window=7):
-        weight = 2 / (window + 1)
-        ema_values = np.zeros((len(ndarry),))
-        # ema_values[:] = np.nan
-        start_line = 0
-        ema_values[start_line + window - 1] = ndarry[start_line:start_line + window - 1].mean()
-        for i in range(start_line + window, len(ndarry)):
-            ema_values[i] = (ndarry[i] * weight) + (ema_values[i - 1] * (1 - weight))
-        return ema_values
-
     def generate_samples(self, label_type="buy"):
         features = []
         labels = []
         infos = []
         pres = []
         date = self.df['date'].values
+        open_prices = self.df['open'].values
         close_prices = self.df['close'].values
         volume = self.df['volume'].values
         feature_size = 0
+
+        # dengtong
+        if len(self.df) > 32:
+            dengtong = calculate_dengtong(open_prices, close_prices, volume)
+
+        # chaodi
+        if len(self.df) > 60:
+            chaodi = calculate_chaodi(close_prices)
 
         # 循环遍历生成样本数据，一次循环生成一条数据，所以循环的次数是样本窗口大小。单词循环中会读取特征需要的数据大小。
         for i in range(0, len(self.df)):
@@ -163,13 +161,14 @@ class Backtesting:
             def date_string_to_int(date_string):
                 return int(date_string.replace("-", ""))
 
+            time1 = timeit.default_timer()
             # 使用NumPy的vectorize函数将函数应用于整个数组
             # date_string_to_int_vectorized = np.vectorize(date_string_to_int)
             # date_ints = date_string_to_int_vectorized(date[i - window_size:i + 1])
             # feature_date = date_ints % 100000
             feature_close = close_prices[i - window_size:i + 1]
-            if i + 3 < len(self.df):
-                target_close = close_prices[i + 3]
+            if i + 1 < len(self.df):
+                target_close = close_prices[i + 1]
             else:
                 target_close = 0
             # 处理负数价格
@@ -182,16 +181,17 @@ class Backtesting:
             feature_close_normalized = feature_close / feature_close[-1]
             feature_close_normalized = np.clip(feature_close_normalized, a_min=0.1, a_max=10.0)
             target_close = target_close / feature_close[-1]
+            time2 = timeit.default_timer()
             # 计算MA5
-            feature_ma5 = self.moving_average(feature_close_normalized, 5)
+            feature_ma5 = MA(feature_close_normalized, 5)
             # 计算MA10
-            feature_ma10 = self.moving_average(feature_close_normalized, 10)
+            feature_ma10 = MA(feature_close_normalized, 10)
             # 计算MA20
-            feature_ma20 = self.moving_average(feature_close_normalized, 20)
+            feature_ma20 = MA(feature_close_normalized, 20)
             # 计算MA30
-            feature_ma30 = self.moving_average(feature_close_normalized, 30)
+            feature_ma30 = MA(feature_close_normalized, 30)
             # 计算MA60
-            feature_ma60 = self.moving_average(feature_close_normalized, 60)
+            feature_ma60 = MA(feature_close_normalized, 60)
             # MA5>MA5
             feature_ma5_ma5 = np.array([(feature_ma5[-1] - feature_ma10[-2]) > 0])
             # MA5>MA10
@@ -199,31 +199,37 @@ class Backtesting:
             # MA5>MA60
             feature_ma5_ma60 = np.array([(feature_ma5[-1] - feature_ma60[-1]) > 0])
 
+            time3 = timeit.default_timer()
             # 提取成交量作为特征
             feature_volume = volume[i - window_size:i + 1]
             feature_volume_normalized = feature_volume / feature_volume[-1]
             feature_volume_normalized = np.clip(feature_volume_normalized, a_min=0.5, a_max=2.0)
             # 计算MA5
-            feature_volume_ma5 = self.moving_average(feature_volume_normalized, 5)
+            feature_volume_ma5 = MA(feature_volume_normalized, 5)
             # 计算MA10
-            feature_volume_ma10 = self.moving_average(feature_volume_normalized, 10)
+            feature_volume_ma10 = MA(feature_volume_normalized, 10)
 
+            time4 = timeit.default_timer()
             # MACD
-            ema5 = self.EMA(feature_close_normalized, window=5)
-            ema12 = self.EMA(feature_close_normalized, window=12)
-            ema26 = self.EMA(feature_close_normalized, window=26)
+            ema5 = EMA(feature_close_normalized, window=5)
+            ema12 = EMA(feature_close_normalized, window=12)
+            ema26 = EMA(feature_close_normalized, window=26)
             dif = ema12 - ema26
-            dea = self.EMA(dif, window=9)
+            dea = EMA(dif, window=9)
             macd = np.array([dif[-2] <= dea[-2] and dif[-1] > dea[-1]])
             macd2 = np.array([dif[-2] >= dea[-2] and dif[-1] < dea[-1]])
 
+            time5 = timeit.default_timer()
             # RSI
             rsi14 = calculate_rsi(feature_close_normalized)
             rsi5 = calculate_rsi(feature_close_normalized, 5)
             rsi10 = calculate_rsi(feature_close_normalized, 10)
 
+            time6 = timeit.default_timer()
             # bollinger_bands
             middle_band, upper_band, lower_band = calculate_bollinger_bands(feature_close_normalized)
+
+            time7 = timeit.default_timer()
             # bias
             bias6 = calculate_bias(feature_close_normalized, window_size=6)
             bias12 = calculate_bias(feature_close_normalized, window_size=12)
@@ -232,6 +238,9 @@ class Backtesting:
             bias10 = calculate_bias(feature_close_normalized, window_size=10)
             bias20 = calculate_bias(feature_close_normalized, window_size=20)
 
+            time8 = timeit.default_timer()
+
+            time9 = timeit.default_timer()
             # 将所有特征添加到一个列表中
             feature_list = [
                 # feature_date[-self.window_size:],
@@ -246,7 +255,10 @@ class Backtesting:
                 bias24[-1:], bias5[-1:], bias10[-1:],
                 bias20[-1:]]
             rounded_feature_list = [np.round(feature, decimals=3) for feature in feature_list]
-            total_feature = rounded_feature_list + [feature_ma5_ma5, feature_ma5_ma10, feature_ma5_ma60, macd, macd2]
+            total_feature = rounded_feature_list + [feature_ma5_ma5, feature_ma5_ma10, feature_ma5_ma60,
+                                                    np.array([dengtong[i]]), np.array([chaodi[i]]),
+                                                    macd, macd2
+                                                    ]
             # 使用 np.concatenate() 函数将特征列表连接起来
             feature = np.concatenate(total_feature)
             if np.any(np.isnan(feature)):
@@ -295,6 +307,16 @@ class Backtesting:
             labels.append(label)
             infos.append(log_info)
             pres.append(pre)
+            time10 = timeit.default_timer()
+            # print(f"收盘价处理: {time2 - time1:.6f} seconds")
+            # print(f"收盘价ma: {time3 - time2:.6f} seconds")
+            # print(f"成交量ma: {time4 - time3:.6f} seconds")
+            # print(f"macd: {time5 - time4:.6f} seconds")
+            # print(f"RSI: {time6 - time5:.6f} seconds")
+            # print(f"布林带: {time7 - time6:.6f} seconds")
+            # print(f"bias: {time8 - time7:.6f} seconds")
+            # print(f"邓通: {time9 - time8:.6f} seconds")
+            # print(f"综合: {time10 - time9:.6f} seconds")
 
         return features, labels, infos, pres
 
