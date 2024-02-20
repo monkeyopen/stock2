@@ -28,13 +28,13 @@ if __name__ == '__main__':
     labels_list = []
     infos_list = []
     pre_list = []
-    datafile = "hk_stock"
+    datafile = "us_stock"
     label_file = CONF_PATH + datafile
     label_type = "price"
     start_date = "20180101"
-    end_date = "20240131"
+    end_date = "20231231"
     # smooth_l1_loss，mse_loss，l1_loss，huber_loss，log_cosh_loss
-    loss = "l1_loss"
+    loss = "mse_loss"
     step_size = 50
     gamma = 0.1
     model_name = f"model/{loss}_{datafile}_{label_type}_step{step_size}_{gamma * 10:.0f}_{start_date}_{end_date}"
@@ -52,7 +52,7 @@ if __name__ == '__main__':
             backtest = Backtesting(
                 data_dir=stock_path,
                 dt_format='%Y-%m-%d',
-                start_date=datetime.datetime(2014, 1, 1),
+                start_date=datetime.datetime(2016, 1, 1),
                 end_date=datetime.datetime(2024, 12, 31),
                 sample_start=datetime.datetime.strptime(start_date, "%Y%m%d"),
                 sample_end=datetime.datetime.strptime(end_date, "%Y%m%d")

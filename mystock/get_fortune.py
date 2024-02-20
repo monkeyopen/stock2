@@ -60,10 +60,48 @@ class Backtesting:
         """
         df = pd.read_csv(self.data_dir)
         df = df[(df['volume'] != 0) & (df['close'] != 0) & (df['open'] != 0)]
+        df['date2'] = pd.to_datetime(df['date'], format=self.dt_format)
+        # self.df = df.loc[(df['date2'] >= self.start_date) & (df['date2'] <= self.end_date)]
+
+        # 计算日期差
+        df['date_diff'] = (df['date2'] - df['date2'].shift(1)).dt.days
+
+        # 更新 start_date
+        start_date = df.loc[df['date_diff'] > 60, 'date2'].max()
+        if pd.isna(start_date):
+            start_date = self.start_date
+
+        # 重新筛选数据
+        self.df = df.loc[(df['date2'] >= start_date) & (df['date2'] <= self.end_date)]
+        self.df = self.df.reset_index(drop=True)
+
+    def _read_data2(self):
+        """
+        从指定目录读取数据，提取指定日期的数据
+        列定义为id,date,open,high,low,close,volume
+        """
+        df = pd.read_csv(self.data_dir)
+        df = df[(df['volume'] != 0) & (df['close'] != 0) & (df['open'] != 0)]
         # 统一日期格式
         # print(self.dt_format)
         # df['date'] = pd.to_datetime(df['date'], format=self.dt_format)
         self.df = df.loc[(df['date'] >= self.start_date.strftime(self.dt_format)) & (
+                df['date'] <= self.end_date.strftime(self.dt_format))]
+        start_date = self.df['date'].values[0]
+        print(start_date)
+
+        for i in range(1, len(self.df)):
+            # 将字符串转换为 datetime 对象
+            date_dt1 = datetime.datetime.strptime(self.df['date'].values[i - 1], '%Y-%m-%d')
+            date_dt2 = datetime.datetime.strptime(self.df['date'].values[i], '%Y-%m-%d')
+
+            # 计算两个日期之间的天数
+            diff_days = (date_dt2 - date_dt1).days
+            if diff_days > 30:
+                print(diff_days)
+                start_date = date_dt2
+        print(start_date)
+        self.df = df.loc[(df['date'] >= start_date.strftime(self.dt_format)) & (
                 df['date'] <= self.end_date.strftime(self.dt_format))]
         self.df = self.df.reset_index(drop=True)
 
@@ -95,8 +133,13 @@ class Backtesting:
         position = 0
         self.profit = 1
         buy_price = 0
-
+        index = 0
         for i in range(len(self.df) - 1):
+            index = i
+            # 如果测试周期结束了，需要跳出
+            if self.df.iloc[i]['date'] >= self.sample_end.strftime(self.dt_format):
+                index -= 1
+                break
             # 止损策略
             if stop_loss != 1 and position == 1 and self.df.iloc[i]['low'] < buy_price * stop_loss:
                 print(stop_loss)
@@ -118,12 +161,16 @@ class Backtesting:
                 self.profit *= profit
                 print(
                     f"{self.df.iloc[i + 1]['date']}, 卖出价格 {sell_price}, 本次收益 {(profit - 1) * 100:.2f}%，总收益 {(self.profit - 1) * 100:.2f}%")
+        print(len(self.df) - 1)
+        index += 1
+        print(index)
+        print(self.df.iloc[index]['date'])
         if position == 1:
-            sell_price = self.df.iloc[- 1]['close']
+            sell_price = self.df.iloc[index]['close']
             profit = sell_price / buy_price
             self.profit *= profit
             print(
-                f"{self.df.iloc[-1]['date']}, 卖出价格 {sell_price}, 本次收益 {(profit - 1) * 100:.2f}%，总收益 {(self.profit - 1) * 100:.2f}%")
+                f"{self.df.iloc[index]['date']}, 卖出价格 {sell_price}, 本次收益 {(profit - 1) * 100:.2f}%，总收益 {(self.profit - 1) * 100:.2f}%")
 
     def add_strategy(self, strategy):
         self.strategy = strategy
@@ -181,6 +228,8 @@ class Backtesting:
             feature_close_normalized = feature_close / feature_close[-1]
             feature_close_normalized = np.clip(feature_close_normalized, a_min=0.1, a_max=10.0)
             target_close = target_close / feature_close[-1]
+            if target_close > 2:
+                print(date[i], target_close)
             time2 = timeit.default_timer()
             # 计算MA5
             feature_ma5 = MA(feature_close_normalized, 5)
@@ -256,7 +305,9 @@ class Backtesting:
                 bias20[-1:]]
             rounded_feature_list = [np.round(feature, decimals=3) for feature in feature_list]
             total_feature = rounded_feature_list + [feature_ma5_ma5, feature_ma5_ma10, feature_ma5_ma60,
-                                                    np.array([dengtong[i]]), np.array([chaodi[i]]),
+                                                    np.array([dengtong[i]]),
+                                                    # np.array([0]),
+                                                    # np.array([chaodi[i]]),
                                                     macd, macd2
                                                     ]
             # 使用 np.concatenate() 函数将特征列表连接起来

@@ -69,7 +69,7 @@ def read_hk_data():
             allStock.append(stock)
 
     sorted_allStock = sorted(allStock, key=lambda stock: stock.money, reverse=True)
-    selected_stocks = [stock for stock in sorted_allStock if stock.money > 1e8]
+    selected_stocks = [stock for stock in sorted_allStock if stock.money > 1e6]
     selected_stocks = sorted(selected_stocks, key=lambda stock: stock.name)
     for stock in selected_stocks:
         print(stock.name)
@@ -102,12 +102,12 @@ def read_a_data():
             allStock.append(stock)
 
     sorted_allStock = sorted(allStock, key=lambda stock: stock.money, reverse=True)
-    selected_stocks = [stock for stock in sorted_allStock if stock.money > 5 * 1e8]
+    selected_stocks = [stock for stock in sorted_allStock if stock.money > 1e8]
     selected_stocks = sorted(selected_stocks, key=lambda stock: stock.name)
     for stock in selected_stocks:
         print(stock.name)
     # 创建一个新的文件
-    file_name = CONF_PATH + "a_stock"
+    file_name = CONF_PATH + "a_stock_20240219"
     with open(file_name, 'w') as f:
         # 遍历筛选后的股票
         for stock in selected_stocks:
@@ -116,6 +116,6 @@ def read_a_data():
 
 
 if __name__ == '__main__':
-    read_us_data()
+    # read_us_data()
     # read_hk_data()
-    # read_a_data()
+    read_a_data()

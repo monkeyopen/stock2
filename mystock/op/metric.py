@@ -58,10 +58,15 @@ def testSample(model, features_tensor, labels_tensor, pres_tensor):
     calRecall("模型", predictions, labels_tensor)
 
 
-def testPrice(model, features_tensor, labels_tensor, buy_signal=1, sell_signal=1):
+def testPrice(model, features_tensor, labels_tensor, buy_signal=1, sell_signal=1, random_signal=0):
     # 计算训练集上的准确率
     with torch.no_grad():
         predictions = model(features_tensor).squeeze()
+        if random_signal:
+            predictions = torch.rand(predictions.shape)
+            # 限制predictions的范围在[0.5,1.5]之间
+            predictions = (predictions + 0.5).clamp(0.5, 1.5)
+
         # 计算均方误差（MSE）
         mse_loss = F.mse_loss(predictions, labels_tensor)
         print(f"Mean Squared Error: {mse_loss.item()}")

@@ -80,7 +80,7 @@ def read_stock_data(file_path: str):
 
 
 def HKStock():
-    label_file = CONF_PATH + "hk_stock_get"
+    label_file = CONF_PATH + "hk_stock"
     with open(label_file, 'r') as f:
         for line in f.readlines():
             stock_code = line.strip()
@@ -95,7 +95,7 @@ def HKStock():
 
 
 def USStock():
-    label_file = CONF_PATH + "us_stock_20240215"
+    label_file = CONF_PATH + "us_stock_get"
     with open(label_file, 'r') as f:
         for line in f.readlines():
             stock_code = line.strip()
@@ -113,7 +113,7 @@ def USStock():
 
 
 def AStock():
-    label_file = CONF_PATH + "a_stock"
+    label_file = CONF_PATH + "a_stock_get"
     with open(label_file, 'r') as f:
         for line in f.readlines():
             stock_code = line.strip()
@@ -129,8 +129,8 @@ def AStock():
 
 if __name__ == '__main__':
     # HKStock()
-    # AStock()
-    USStock()
+    AStock()
+    # USStock()
 
     # file_path = CONF_PATH + "all_hk_stock"
     # data = ak.stock_hk_spot()
