@@ -26,7 +26,7 @@ def calculate_rsi(data, window_length=14):
     RS[index] = roll_up[index] / roll_down[index]
 
     # 计算RSI
-    RSI = 100.0 - (100.0 / (1.0 + RS))
+    RSI = (100.0 - (100.0 / (1.0 + RS))) / 100.0
 
     return RSI
 

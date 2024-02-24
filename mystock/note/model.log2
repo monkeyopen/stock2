@@ -1,0 +1,31 @@
+改成回归模型后。
+初次实验用us_stock_test，2021年1月1日-2023年12月31日。训练出来的模型，好像是mse和smooth_l1的效果好一点。
+
+
+现在用us_stock数据，重新训练，对比结果。
+
+
+还要用2018至今的数据训练，看看效果如何。
+
+
+只看准召，并不能代表收益，还要增加回测模块，20230101至今的时间段上，700，tsla，nvda的收益率。
+实现了单只股票收益率的回测能力。
+
+还要增加多只股票组合的回测能力。
+
+每个模型最好的十只票
+打出各项指标的平均值。
+smooth_l1_loss_us_stock_price_step100_05_201: mse=0.1138, mae=0.1425, acc=0.6349, profit=0.1845
+mse_loss_us_stock_price_step100_05_20180101_: mse=0.1140, mae=0.1430, acc=0.6349, profit=0.1811
+huber_loss_us_stock_price_step100_05_2018010: mse=0.1138, mae=0.1437, acc=0.5608, profit=0.1687
+mse_loss_us_stock_price_step100_05_20210101_: mse=0.1133, mae=0.1432, acc=0.5926, profit=0.1543
+log_cosh_loss_us_stock_price_step100_05_2018: mse=0.1139, mae=0.1434, acc=0.5503, profit=0.1508
+
+
+train_price.py训练出模型
+test_price_mul.py选出最好的模型
+test_price_mul2.py选出模型表现最好的10只股票。
+predict_price.py给出预测分数
+
+
+

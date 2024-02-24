@@ -1,19 +1,16 @@
 from dotenv import load_dotenv
 import os
 
-from mystock.op.metric import testSample, testPrice
-from mystock.op.sampler import CustomSampler
-from mystock.test_sell import test_sell
-
 load_dotenv()
 CONF_PATH = os.getenv('CONF_PATH')
 DATA_PATH = os.getenv('DATA_PATH')
 ROOT_PATH = os.getenv('ROOT_PATH')
+MODEL_PATH = os.getenv('MODEL_PATH')
 import sys
 
 # print('Python %s on %s' % (sys.version, sys.platform))
 sys.path.extend([ROOT_PATH])
-
+from mystock.op.metric import testPrice
 import datetime
 import numpy as np
 import torch
@@ -21,6 +18,7 @@ import torch.nn as nn
 from torch.utils.data import DataLoader, TensorDataset
 from get_fortune import Backtesting
 from mynet.neural_network import FiveLayerNN
+from mystock.op.loss import mse_side_loss
 from collections import Counter
 
 if __name__ == '__main__':
@@ -33,11 +31,11 @@ if __name__ == '__main__':
     label_type = "price"
     start_date = "20180101"
     end_date = "20231231"
-    # smooth_l1_loss，mse_loss，l1_loss，huber_loss，log_cosh_loss
-    loss = "mse_loss"
+    # smooth_l1_loss，mse_loss，l1_loss，huber_loss，log_cosh_loss, mse_side_loss
+    loss = "mse_side_loss"
     step_size = 50
     gamma = 0.1
-    model_name = f"model/{loss}_{datafile}_{label_type}_step{step_size}_{gamma * 10:.0f}_{start_date}_{end_date}"
+    model_name = f"{MODEL_PATH}/{loss}_{datafile}_{label_type}_step{step_size}_{gamma * 10:.0f}_{start_date}_{end_date}"
     # if torch.cuda.is_available():
     #     device = torch.device('cuda')
     # else:
@@ -52,7 +50,7 @@ if __name__ == '__main__':
             backtest = Backtesting(
                 data_dir=stock_path,
                 dt_format='%Y-%m-%d',
-                start_date=datetime.datetime(2016, 1, 1),
+                start_date=datetime.datetime(2017, 1, 1),
                 end_date=datetime.datetime(2024, 12, 31),
                 sample_start=datetime.datetime.strptime(start_date, "%Y%m%d"),
                 sample_end=datetime.datetime.strptime(end_date, "%Y%m%d")
@@ -124,6 +122,8 @@ if __name__ == '__main__':
         loss_function = nn.functional.huber_loss
     elif loss == "log_cosh_loss":
         loss_function = log_cosh_loss
+    elif loss == "mse_side_loss":
+        loss_function = mse_side_loss
     else:
         loss_function = nn.functional.mse_loss
 
@@ -131,7 +131,7 @@ if __name__ == '__main__':
     scheduler = torch.optim.lr_scheduler.StepLR(optimizer, step_size=step_size, gamma=gamma)
 
     # 训练循环
-    epochs = 600
+    epochs = 200
     num = 0
     for epoch in range(epochs):
         for batch_features, batch_labels in data_loader:
@@ -155,11 +155,10 @@ if __name__ == '__main__':
         # 更新学习率
         scheduler.step()
 
-        if epoch % 10 == 1:
-            # 获取当前时间
-            current_time = datetime.datetime.now()
-            # 打印每个epoch的损失
-            print(f"{current_time}, Epoch {epoch}/{epochs}, Loss: {loss.item()}")
+        # 获取当前时间
+        current_time = datetime.datetime.now()
+        # 打印每个epoch的损失
+        print(f"{current_time}, Epoch {epoch}/{epochs}, Loss: {loss.item()}")
         if epoch % 50 == 0:
             # 训练模型后，保存权重
             model_weights_path = f"{model_name}_{epoch}.pth"

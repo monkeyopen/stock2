@@ -51,7 +51,7 @@ def read_us_data():
 
 
 def read_hk_data():
-    label_file = CONF_PATH + "all_hk_stock"
+    label_file = CONF_PATH + "all_hk_stock_20240224"
     num = 0
     allStock = []
 
@@ -74,7 +74,7 @@ def read_hk_data():
     for stock in selected_stocks:
         print(stock.name)
     # 创建一个新的文件
-    file_name = CONF_PATH + "hk_stock"
+    file_name = CONF_PATH + "hk_stock_20240224"
     with open(file_name, 'w') as f:
         # 遍历筛选后的股票
         for stock in selected_stocks:
@@ -115,7 +115,30 @@ def read_a_data():
             f.write(stock.name + '\n')
 
 
+def read_a_name():
+    label_file = CONF_PATH + "all_a_stock"
+    num = 0
+    allStock = {}
+
+    with open(label_file, 'r', encoding='utf-8') as csvfile:
+        reader = csv.reader(csvfile)
+        next(reader)  # 跳过第一行
+        for arr in reader:
+            # print(arr)
+            code = arr[1]
+            name = arr[2]
+            allStock[code] = name
+
+    with open(CONF_PATH + "a_stock_follow", 'r') as f:
+        for line in f.readlines():
+            stock = line.strip()
+            print(stock[2:], allStock.get(stock, "not found"))
+
+
 if __name__ == '__main__':
     # read_us_data()
-    # read_hk_data()
-    read_a_data()
+    read_hk_data()
+    # read_a_data()
+    # read_a_name()
+
+    print("done")

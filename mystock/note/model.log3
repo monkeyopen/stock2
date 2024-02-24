@@ -1,0 +1,84 @@
+当前的训练数据都是选择的高成交量的股票。
+a股里面的中小盘完全没有。可能需要单独做一个模型来处理中小盘股票。10亿左右市值，每天的成交量不会太大。
+
+邓通的dma太慢了，所以改成一只股票算一次。每个样本取数。其实其他窗口类特征也该这样搞，但是收盘价归一化等问题，嗯，太麻烦了，先这样吧。那qfq的数据会把邓通搞坏吗？
+
+
+回归目标从+3变成了+1
+
+
+hk最优模型是
+l1_loss_hk_stock_price_step50_1_20180101_20231231_last
+
+stock: 00285, Pre 0.9968, Label 0.0000, info ['2024-02-14', 0, 0, 0]
+stock: 00772, Pre 1.0065, Label 0.0000, info ['2024-02-14', 0, 0, 0]
+stock: 03690, Pre 0.9973, Label 0.0000, info ['2024-02-14', 0, 0, 0]
+stock: 09988, Pre 1.0018, Label 0.0000, info ['2024-02-14', 0, 0, 0]
+stock: 02020, Pre 0.9984, Label 0.0000, info ['2024-02-14', 0, 0, 0]
+stock: 06865, Pre 1.0079, Label 0.0000, info ['2024-02-14', 0, 0, 0]
+
+stock: 00285, Pre 0.9949, Label 0.0000, info ['2024-02-15', 0, 0, 0]
+stock: 00772, Pre 0.9997, Label 0.0000, info ['2024-02-15', 0, 0, 0]
+stock: 03690, Pre 0.9914, Label 0.0000, info ['2024-02-15', 0, 0, 0]
+stock: 09988, Pre 0.9983, Label 0.0000, info ['2024-02-15', 0, 0, 0]
+stock: 02020, Pre 0.9952, Label 0.0000, info ['2024-02-15', 0, 0, 0]
+stock: 06865, Pre 1.0016, Label 0.0000, info ['2024-02-15', 0, 0, 0]
+
+stock: 00285, Pre 1.0004, Label 0.0000, info ['2024-02-16', 0, 0, 0]
+stock: 00772, Pre 0.9932, Label 0.0000, info ['2024-02-16', 0, 0, 0]
+stock: 03690, Pre 0.9989, Label 0.0000, info ['2024-02-16', 0, 0, 0]
+stock: 09988, Pre 1.0008, Label 0.0000, info ['2024-02-16', 0, 0, 0]
+stock: 02020, Pre 0.9944, Label 0.0000, info ['2024-02-16', 0, 0, 0]
+stock: 06865, Pre 1.0030, Label 0.0000, info ['2024-02-16', 0, 0, 0]
+
+stock: 00285, Pre 1.0009, Label 0.0000, info ['2024-02-19', 0, 0, 0]
+stock: 00772, Pre 0.9972, Label 0.0000, info ['2024-02-19', 0, 0, 0]
+stock: 03690, Pre 0.9988, Label 0.0000, info ['2024-02-19', 0, 0, 0]
+stock: 09988, Pre 1.0009, Label 0.0000, info ['2024-02-19', 0, 0, 0]
+stock: 02020, Pre 0.9988, Label 0.0000, info ['2024-02-19', 0, 0, 0]
+stock: 06865, Pre 0.9929, Label 0.0000, info ['2024-02-19', 0, 0, 0]
+
+stock: 00285, Pre 0.9991, Label 0.0000, info ['2024-02-20', 0, 0, 0]
+stock: 00772, Pre 0.9957, Label 0.0000, info ['2024-02-20', 0, 0, 0]
+stock: 03690, Pre 0.9982, Label 0.0000, info ['2024-02-20', 0, 0, 0]
+stock: 09988, Pre 1.0016, Label 0.0000, info ['2024-02-20', 0, 0, 0]
+stock: 02020, Pre 0.9976, Label 0.0000, info ['2024-02-20', 0, 0, 0]
+stock: 06865, Pre 0.9906, Label 0.0000, info ['2024-02-20', 0, 0, 0]
+
+us最优模型是
+mse_loss_us_stock_price_step50_1_20180101_20231231_last
+
+
+stock: SMCI, Pre 1.0107, Label 0.0000, info ['2024-02-14', 0, 0, 0]
+stock: SOXL, Pre 1.0038, Label 0.0000, info ['2024-02-14', 0, 0, 0]
+stock: UBER, Pre 1.0047, Label 0.0000, info ['2024-02-14', 0, 0, 0]
+stock: VERA, Pre 0.9987, Label 0.0000, info ['2024-02-14', 0, 0, 0]
+stock: NVDA, Pre 1.0014, Label 0.0000, info ['2024-02-14', 0, 0, 0]
+stock: FNGU, Pre 1.0038, Label 0.0000, info ['2024-02-14', 0, 0, 0]
+stock: SPOT, Pre 1.0008, Label 0.0000, info ['2024-02-14', 0, 0, 0]
+stock: ARM, Pre 0.9973, Label 0.0000, info ['2024-02-14', 0, 0, 0]
+stock: TQQQ, Pre 1.0008, Label 0.0000, info ['2024-02-14', 0, 0, 0]
+
+stock: SMCI, Pre 0.9899, Label 0.0000, info ['2024-02-15', 0, 0, 0]
+stock: SOXL, Pre 1.0013, Label 0.0000, info ['2024-02-15', 0, 0, 0]
+stock: UBER, Pre 1.0046, Label 0.0000, info ['2024-02-15', 0, 0, 0]
+stock: VERA, Pre 0.9994, Label 0.0000, info ['2024-02-15', 0, 0, 0]
+stock: NVDA, Pre 1.0008, Label 0.0000, info ['2024-02-15', 0, 0, 0]
+stock: FNGU, Pre 1.0017, Label 0.0000, info ['2024-02-15', 0, 0, 0]
+stock: FNGD, Pre 1.0107, Label 0.0000, info ['2024-02-15', 0, 0, 0]
+stock: SPOT, Pre 1.0007, Label 0.0000, info ['2024-02-15', 0, 0, 0]
+stock: ARM, Pre 1.0022, Label 0.0000, info ['2024-02-15', 0, 0, 0]
+stock: TQQQ, Pre 1.0007, Label 0.0000, info ['2024-02-15', 0, 0, 0]
+
+
+stock: SMCI, Pre 1.0011, Label 0.0000, info ['2024-02-16', 0, 0, 0]
+stock: SOXL, Pre 1.0011, Label 0.0000, info ['2024-02-16', 0, 0, 0]
+stock: UBER, Pre 1.0011, Label 0.0000, info ['2024-02-16', 0, 0, 0]
+stock: VERA, Pre 1.0011, Label 0.0000, info ['2024-02-16', 0, 0, 0]
+stock: NVDA, Pre 1.0011, Label 0.0000, info ['2024-02-16', 0, 0, 0]
+stock: FNGU, Pre 1.0011, Label 0.0000, info ['2024-02-16', 0, 0, 0]
+stock: FNGD, Pre 1.0082, Label 0.0000, info ['2024-02-16', 0, 0, 0]
+stock: SPOT, Pre 1.0011, Label 0.0000, info ['2024-02-16', 0, 0, 0]
+stock: ARM, Pre 1.0011, Label 0.0000, info ['2024-02-16', 0, 0, 0]
+stock: TQQQ, Pre 1.0011, Label 0.0000, info ['2024-02-16', 0, 0, 0]
+stock: RVSN, Pre 0.6943, Label 0.0000, info ['2024-02-16', 0, 0, 0]

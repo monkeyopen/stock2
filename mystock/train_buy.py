@@ -1,10 +1,6 @@
 from dotenv import load_dotenv
 import os
 
-from mystock.op.metric import testSample
-from mystock.op.sampler import CustomSampler
-from mystock.test_sell import test_sell
-
 load_dotenv()
 CONF_PATH = os.getenv('CONF_PATH')
 DATA_PATH = os.getenv('DATA_PATH')
@@ -13,7 +9,9 @@ import sys
 
 # print('Python %s on %s' % (sys.version, sys.platform))
 sys.path.extend([ROOT_PATH])
-
+from mystock.op.metric import testSample
+from mystock.op.sampler import CustomSampler
+from mystock.test_sell import test_sell
 import datetime
 import numpy as np
 import torch

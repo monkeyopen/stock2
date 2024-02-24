@@ -14,7 +14,7 @@ def calculate_bias(data, window_size=6):
     # 计算BIAS
     bias = np.full_like(moving_avg, np.nan)
     index = moving_avg != 0
-    bias[index] = (data[window_size - 1:][index] - moving_avg[index]) / moving_avg[index] * 100
+    bias[index] = (data[window_size - 1:][index] - moving_avg[index]) / moving_avg[index] * 10
 
     return bias
 

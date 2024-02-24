@@ -17,6 +17,7 @@ from mystock.op.bias import calculate_bias
 from mystock.op.rsi import calculate_rsi
 from mystock.op.ma import MA, EMA
 from mystock.op.dengtong import calculate_dengtong
+from mystock.op.nine import calculate_nine
 from mystock.op.chaodi import calculate_chaodi
 from mystock.op.bollinger_bands import calculate_bollinger_bands
 from macd import Macd
@@ -141,11 +142,11 @@ class Backtesting:
                 index -= 1
                 break
             # 止损策略
-            if stop_loss != 1 and position == 1 and self.df.iloc[i]['low'] < buy_price * stop_loss:
+            if stop_loss != 1 and position == 1 and self.df.iloc[i]['close'] < buy_price * stop_loss:
                 print(stop_loss)
                 position = 0
-                # sell_price = self.df.iloc[i + 1]['open']
-                sell_price = buy_price * stop_loss - 0.01
+                sell_price = self.df.iloc[i]['close']
+                # sell_price = buy_price * stop_loss - 0.01
                 profit = sell_price / buy_price
                 self.profit *= profit
                 print(
@@ -161,10 +162,10 @@ class Backtesting:
                 self.profit *= profit
                 print(
                     f"{self.df.iloc[i + 1]['date']}, 卖出价格 {sell_price}, 本次收益 {(profit - 1) * 100:.2f}%，总收益 {(self.profit - 1) * 100:.2f}%")
-        print(len(self.df) - 1)
+        # print(len(self.df) - 1)
         index += 1
-        print(index)
-        print(self.df.iloc[index]['date'])
+        # print(index)
+        # print(self.df.iloc[index]['date'])
         if position == 1:
             sell_price = self.df.iloc[index]['close']
             profit = sell_price / buy_price
@@ -190,9 +191,18 @@ class Backtesting:
         if len(self.df) > 32:
             dengtong = calculate_dengtong(open_prices, close_prices, volume)
 
-        # chaodi
+        # # chaodi
+        # if len(self.df) > 60:
+        #     chaodi = calculate_chaodi(close_prices)
+
+        # nine
         if len(self.df) > 60:
-            chaodi = calculate_chaodi(close_prices)
+            up_4 = calculate_nine(close_prices, 4, "up")
+            down_4 = calculate_nine(close_prices, 4, "down")
+            up_30 = calculate_nine(close_prices, 30, "up")
+            down_30 = calculate_nine(close_prices, 30, "down")
+            up_60 = calculate_nine(close_prices, 60, "up")
+            down_60 = calculate_nine(close_prices, 60, "down")
 
         # 循环遍历生成样本数据，一次循环生成一条数据，所以循环的次数是样本窗口大小。单词循环中会读取特征需要的数据大小。
         for i in range(0, len(self.df)):
@@ -306,8 +316,10 @@ class Backtesting:
             rounded_feature_list = [np.round(feature, decimals=3) for feature in feature_list]
             total_feature = rounded_feature_list + [feature_ma5_ma5, feature_ma5_ma10, feature_ma5_ma60,
                                                     np.array([dengtong[i]]),
-                                                    # np.array([0]),
                                                     # np.array([chaodi[i]]),
+                                                    np.array([up_4[i]]), np.array([down_4[i]]), np.array([up_30[i]]),
+                                                    np.array([down_30[i]]), np.array([up_60[i]]),
+                                                    np.array([down_60[i]]),
                                                     macd, macd2
                                                     ]
             # 使用 np.concatenate() 函数将特征列表连接起来

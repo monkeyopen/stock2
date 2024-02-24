@@ -1,0 +1,43 @@
+带chaodi指标
+mse_loss_us_stock_price_step50_1_20180101_20231231_last: acc=0.5406, profit=0.2191
+huber_loss_us_stock_price_step50_1_20180101_20231231_last: acc=0.5318, profit=0.1976
+smooth_l1_loss_us_stock_price_step50_1_20180101_20231231_last: acc=0.5142, profit=0.1901
+log_cosh_loss_us_stock_price_step50_1_20180101_20231231_last: acc=0.5249, profit=0.1741
+l1_loss_us_stock_price_step50_1_20180101_20231231_last: acc=0.5161, profit=0.1464
+log_cosh_loss_us_stock_price_step50_1_20210101_20231231_last: acc=0.5142, profit=0.0703
+
+chaodi全写1
+smooth_l1_loss_us_stock_price_step50_1_20180101_20231231_last: acc=0.5298, profit=0.2303
+mse_loss_us_stock_price_step50_1_20180101_20231231_last: acc=0.5210, profit=0.2075
+log_cosh_loss_us_stock_price_step50_1_20180101_20231231_last: acc=0.5327, profit=0.1898
+huber_loss_us_stock_price_step50_1_20180101_20231231_last: acc=0.5220, profit=0.1838
+l1_loss_us_stock_price_step50_1_20180101_20231231_last: acc=0.5191, profit=0.1739
+log_cosh_loss_us_stock_price_step50_1_20210101_20231231_last: acc=0.5073, profit=0.0601
+
+chaodi全写0
+mse_loss_us_stock_price_step50_1_20180101_20231231_last: acc=0.5406, profit=0.2191
+huber_loss_us_stock_price_step50_1_20180101_20231231_last: acc=0.5318, profit=0.1976
+smooth_l1_loss_us_stock_price_step50_1_20180101_20231231_last: acc=0.5142, profit=0.1901
+log_cosh_loss_us_stock_price_step50_1_20180101_20231231_last: acc=0.5249, profit=0.1741
+l1_loss_us_stock_price_step50_1_20180101_20231231_last: acc=0.5161, profit=0.1464
+log_cosh_loss_us_stock_price_step50_1_20210101_20231231_last: acc=0.5142, profit=0.0703
+去掉chaodi指标
+mse_loss_us_stock_price_step50_1_20180101_20231231_last: acc=0.5318, profit=0.3764
+
+
+九转指标，1024
+model/mse_loss_us_stock_price_step50_1_20180101_20231231_last.pth: acc=0.5228, profit=0.2367
+model/mse_side_loss_us_stock_price_step50_1_20180101_20231231_last.pth: acc=0.5161, profit=0.0875
+
+stock: SMCI, Pre 0.9961, Label 0.0000, info ['2024-02-22', 0, 0, 0]
+stock: SOXL, Pre 1.0010, Label 0.0000, info ['2024-02-22', 0, 0, 0]
+stock: UBER, Pre 0.9975, Label 0.0000, info ['2024-02-22', 0, 0, 0]
+stock: VERA, Pre 0.9844, Label 0.0000, info ['2024-02-22', 0, 0, 0]
+stock: NVDA, Pre 0.9997, Label 0.0000, info ['2024-02-22', 0, 0, 0]
+stock: FNGU, Pre 0.9998, Label 0.0000, info ['2024-02-22', 0, 0, 0]
+stock: FNGD, Pre 0.9991, Label 0.0000, info ['2024-02-22', 0, 0, 0]
+stock: SPOT, Pre 0.9959, Label 0.0000, info ['2024-02-22', 0, 0, 0]
+stock: ARM, Pre 0.9922, Label 0.0000, info ['2024-02-22', 0, 0, 0]
+stock: TQQQ, Pre 1.0008, Label 0.0000, info ['2024-02-22', 0, 0, 0]
+stock: RVSN, Pre 1.0065, Label 0.0000, info ['2024-02-22', 0, 0, 0]
+stock: BITX, Pre 0.9973, Label 0.0000, info ['2024-02-22', 0, 0, 0]
