@@ -93,7 +93,6 @@ def test_price_stock(stock="TSLA", model_weights_path="model/sell_240_step100_20
 if __name__ == '__main__':
     model_weights_path_list = [
         "random",
-        "model/l1_loss_hk_stock_price_step50_1_20180101_20240131_last.pth",
         "model/l1_loss_hk_stock_price_step50_1_20180101_20231231_last.pth"]
     result_list = []
     label_file = CONF_PATH + "hk_stock_test"

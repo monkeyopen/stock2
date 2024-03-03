@@ -140,11 +140,11 @@ def read_a_data():
     file_name = CONF_PATH + "a_stock_20240219_selected_volume"
     with open(file_name, 'w') as f:
         # 遍历筛选后的股票
-        for stock in selected_stocks[:]:
+        for stock in selected_stocks[:1000]:
             # 将股票名称写入文件
             f.write(stock.__str__())
 
-    selected_stocks = sorted(selected_stocks[:], key=lambda stock: stock.name)
+    selected_stocks = sorted(selected_stocks[:1000], key=lambda stock: stock.name)
     # 创建一个新的文件
     file_name = CONF_PATH + "a_stock_20240219_selected"
     with open(file_name, 'w') as f:

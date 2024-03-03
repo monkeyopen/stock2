@@ -6,12 +6,15 @@ import torch
 from get_fortune import Backtesting
 from mynet.neural_network import FiveLayerNN
 from collections import Counter
+import read
 
 from mystock.op.metric import calAcc, calRecall
 
 load_dotenv()
 DATA_PATH = os.getenv('DATA_PATH')
 CONF_PATH = os.getenv('CONF_PATH')
+
+all_stock = read.read_hk_name()
 
 
 def predict_price(dataset="hk_stock_follow",
@@ -73,10 +76,10 @@ def predict_price(dataset="hk_stock_follow",
             # 遍历并打印每一条数据的预测结果和标签
             for i in range(len(predictions)):
                 print(
-                    f"stock: {stock}, Pre {predictions[i].item():.4f}, Label {labels_tensor[i].item():.4f}, info {info[i]}")
+                    f"{stock},{all_stock.get(stock)}, Pre {predictions[i].item():.4f}, Label {labels_tensor[i].item():.4f}, info {info[i]}")
 
             result.append(
-                f"stock: {stock}, Pre {predictions[-1].item():.4f}, Label {labels_tensor[-1].item():.4f}, info {info[-1]}")
+                f"{stock},{all_stock.get(stock)}, Pre {predictions[-1].item():.4f}, Label {labels_tensor[-1].item():.4f}, info {info[-1]}")
 
         return result
 

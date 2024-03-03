@@ -80,7 +80,7 @@ def read_stock_data(file_path: str):
 
 
 def HKStock():
-    label_file = CONF_PATH + "hk_stock_20240224"
+    label_file = CONF_PATH + "hk_stock_20240301"
     with open(label_file, 'r') as f:
         for line in f.readlines():
             stock_code = line.strip()
@@ -95,7 +95,7 @@ def HKStock():
 
 
 def USStock():
-    label_file = CONF_PATH + "us_stock_20240215"
+    label_file = CONF_PATH + "us_stock_get"
     with open(label_file, 'r') as f:
         for line in f.readlines():
             stock_code = line.strip()
@@ -113,7 +113,7 @@ def USStock():
 
 
 def AStock():
-    label_file = CONF_PATH + "a_stock_20240219"
+    label_file = CONF_PATH + "a_stock_20240301"
     with open(label_file, 'r') as f:
         for line in f.readlines():
             stock_code = line.strip()
@@ -128,22 +128,22 @@ def AStock():
 
 
 if __name__ == '__main__':
-    HKStock()
+    # HKStock()
     # AStock()
-    # USStock()
+    USStock()
 
-    # file_path = CONF_PATH + "all_hk_stock_20240224"
+    # file_path = CONF_PATH + "all_hk_stock_20240301"
     # data = ak.stock_hk_spot()
     # print(data)
     # if file_path:
     #     data.to_csv(file_path)
-
-    # file_path = CONF_PATH + "all_us_stock_20240216"
+    #
+    # file_path = CONF_PATH + "all_us_stock_20240301"
     # data = ak.stock_us_spot()
     # if file_path:
     #     data.to_csv(file_path)
-
-    # file_path = CONF_PATH + "all_a_stock"
+    #
+    # file_path = CONF_PATH + "all_a_stock_20240301"
     # data = ak.stock_zh_a_spot()
     # if file_path:
     #     data.to_csv(file_path)

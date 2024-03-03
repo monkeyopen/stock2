@@ -15,6 +15,7 @@ import numpy as np
 import torch
 from get_fortune import Backtesting
 from mynet.neural_network import FiveLayerNN
+import read
 
 
 def predict_price(dataset="us_stock_follow",
@@ -28,6 +29,7 @@ def predict_price(dataset="us_stock_follow",
     infos_list = []
     pre_list = []
     result = []
+    all_stock = read.read_us_name()
     with open(label_file, 'r') as f:
         for line in f.readlines():
             stock = line.strip()
@@ -86,10 +88,10 @@ def predict_price(dataset="us_stock_follow",
             # 遍历并打印每一条数据的预测结果和标签
             for i in range(len(predictions)):
                 print(
-                    f"stock: {stock}, Pre {predictions[i].item():.4f}, Label {labels_tensor[i].item():.4f}, info {info[i]}")
+                    f"{stock},{all_stock.get(stock)}, Pre {predictions[i].item():.4f}, Label {labels_tensor[i].item():.4f}, info {info[i]}")
 
             result.append(
-                f"stock: {stock}, Pre {predictions[-1].item():.4f}, Label {labels_tensor[-1].item():.4f}, info {info[-1]}")
+                f"Pre {predictions[-1].item():.4f}, Label {labels_tensor[-1].item():.4f}, info {info[-1]}, {stock},{all_stock.get(stock)}")
 
         return result
 

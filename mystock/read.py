@@ -19,7 +19,7 @@ class Stock:
 
 
 def read_us_data():
-    label_file = CONF_PATH + "all_us_stock_20240215"
+    label_file = CONF_PATH + "all_us_stock_20240301"
     num = 0
     allStock = []
     print(label_file)
@@ -42,7 +42,7 @@ def read_us_data():
     for stock in selected_stocks:
         print(stock.name)
     # 创建一个新的文件
-    file_name = CONF_PATH + "us_stock_20240215"
+    file_name = CONF_PATH + "us_stock_20240301"
     with open(file_name, 'w') as f:
         # 遍历筛选后的股票
         for stock in selected_stocks:
@@ -51,7 +51,7 @@ def read_us_data():
 
 
 def read_hk_data():
-    label_file = CONF_PATH + "all_hk_stock_20240224"
+    label_file = CONF_PATH + "all_hk_stock_20240301"
     num = 0
     allStock = []
 
@@ -74,7 +74,7 @@ def read_hk_data():
     for stock in selected_stocks:
         print(stock.name)
     # 创建一个新的文件
-    file_name = CONF_PATH + "hk_stock_20240224"
+    file_name = CONF_PATH + "hk_stock_20240301"
     with open(file_name, 'w') as f:
         # 遍历筛选后的股票
         for stock in selected_stocks:
@@ -83,7 +83,7 @@ def read_hk_data():
 
 
 def read_a_data():
-    label_file = CONF_PATH + "all_a_stock"
+    label_file = CONF_PATH + "all_a_stock_20240301"
     num = 0
     allStock = []
 
@@ -107,7 +107,7 @@ def read_a_data():
     for stock in selected_stocks:
         print(stock.name)
     # 创建一个新的文件
-    file_name = CONF_PATH + "a_stock_20240219"
+    file_name = CONF_PATH + "a_stock_20240301"
     with open(file_name, 'w') as f:
         # 遍历筛选后的股票
         for stock in selected_stocks:
@@ -133,12 +133,49 @@ def read_a_name():
         for line in f.readlines():
             stock = line.strip()
             print(stock[2:], allStock.get(stock, "not found"))
+    return allStock
+
+
+def read_us_name():
+    label_file = CONF_PATH + "all_us_stock"
+    num = 0
+    allStock = {}
+
+    with open(label_file, 'r', encoding='utf-8') as csvfile:
+        reader = csv.reader(csvfile)
+        next(reader)  # 跳过第一行
+        for arr in reader:
+            # print(arr)
+            code = arr[4]
+            name = arr[2]
+            allStock[code] = name
+
+    return allStock
+
+
+def read_hk_name():
+    label_file = CONF_PATH + "all_hk_stock"
+    num = 0
+    allStock = {}
+
+    with open(label_file, 'r', encoding='utf-8') as csvfile:
+        reader = csv.reader(csvfile)
+        next(reader)  # 跳过第一行
+        for arr in reader:
+            # print(arr)
+            code = arr[1]
+            name = arr[2]
+            allStock[code] = name
+
+    return allStock
 
 
 if __name__ == '__main__':
-    # read_us_data()
+    read_us_data()
     read_hk_data()
-    # read_a_data()
+    read_a_data()
     # read_a_name()
+    # read_us_name()
+    # read_hk_name()
 
     print("done")
