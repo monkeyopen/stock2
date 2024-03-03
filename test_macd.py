@@ -16,6 +16,7 @@ import pandas as pd
 import numpy as np
 from get_data import read_stock_data
 
+
 # 假设您已经有了一个函数可以获取腾讯科技的历史数据
 # 为了成功执行macd(tencent_data)函数，tencent_data应该是一个包含股票历史价格数据的Pandas DataFrame。这个DataFrame应该至少包含以下三列：日期（通常是索引）、收盘价（Close）和交易量（Volume）。MACD指标主要关注收盘价，所以至少需要包含这一列。
 #
@@ -43,6 +44,7 @@ def get_tencent_data(start_date, end_date):
 def ema(data, n):
     return data.ewm(span=n, adjust=False).mean()
 
+
 # 计算MACD指标
 def macd(data):
     data['DIF'] = ema(data['close'], 12) - ema(data['close'], 26)
@@ -50,12 +52,14 @@ def macd(data):
     data['MACD'] = 2 * (data['DIF'] - data['DEA'])
     return data
 
+
 # 回测MACD策略
 def backtest_macd(data):
     data['Signal'] = np.where(data['DIF'] > data['DEA'], 1, -1)
     data['Return'] = data['close'].pct_change() * data['Signal'].shift(1)
     data['Cumulative_Return'] = (1 + data['Return']).cumprod()
     return data
+
 
 if __name__ == '__main__':
     # 获取腾讯科技的历史数据
@@ -77,4 +81,3 @@ if __name__ == '__main__':
     print(tencent_data.loc["2023-01-18", "high"])
     print(tencent_data.iloc[4, 3])
     print(tencent_data["open"][2])
-

@@ -9,13 +9,10 @@ if __name__ == '__main__':
 
     # 判断是否出现九转上涨结构
     for i in range(8, len(df)):
-        if all(df.loc[i-8:i, 'close'] > df.loc[i-8:i, 'ma9']):
+        if all(df.loc[i - 8:i, 'close'] > df.loc[i - 8:i, 'ma9']):
             print('九转上涨结构出现在', df.loc[i, 'date'])
 
     # 判断是否出现九转下跌结构
     for i in range(8, len(df)):
-        if all(df.loc[i-8:i, 'close'] < df.loc[i-8:i, 'ma9']):
+        if all(df.loc[i - 8:i, 'close'] < df.loc[i - 8:i, 'ma9']):
             print('九转下跌结构出现在', df.loc[i, 'date'])
-
-
-
